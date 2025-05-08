@@ -11,3 +11,5 @@ TapTalk Backend는 다음 마이크로서비스로 구성되어 있습니다:
 - **MariaDB**: 모든 서비스의 데이터 저장소
 
 CI/CD : Git Actions
+
+Server : 라즈베리파이4
