@@ -1,15 +1,11 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# 빌드 캐시 최적화를 위해 Gradle 파일을 먼저 복사
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
-RUN chmod +x ./gradlew
-RUN ./gradlew wrapper --gradle-version 8.5
-RUN ./gradlew dependencies
-
-# 소스 코드 복사 및 빌드
+# 소스 코드 전체 복사
 COPY . .
+RUN chmod +x ./gradlew
+
+# Gradle 빌드 실행
 RUN ./gradlew build -x test
 
 FROM eclipse-temurin:17-jre
