@@ -2,13 +2,10 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# 필요한 파일만 복사하고 의존성 먼저 다운로드 (캐시 최적화)
-COPY build.gradle settings.gradle ./
-COPY gradle gradle
-RUN gradle build --no-daemon || return 0
+# 소스 코드 복사
+COPY . .
 
-# 나머지 소스 복사 후 빌드
-COPY src src
+# Gradle 빌드 실행
 RUN gradle bootJar --no-daemon
 
 # 2단계: 실행용 (runtime stage)
