@@ -9,3 +9,5 @@ TapTalk Backend는 다음 마이크로서비스로 구성되어 있습니다:
 - **AI Map Service**: 지도 및 AI 관련 기능
 - **User Auth Service**: 사용자 인증 및 관리
 - **MariaDB**: 모든 서비스의 데이터 저장소
+
+CI/CD : Git Actions
