@@ -1,0 +1,98 @@
+services:
+  eureka-server:
+    build:
+      context: ./eureka
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=default
+      - EUREKA_INSTANCE_HOSTNAME=localhost
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://localhost:8761/eureka/
+    networks:
+      - taptalk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - taptalk-network
+    restart: unless-stopped
+
+  ai-map:
+    build:
+      context: ./aiMap
+      dockerfile: Dockerfile
+    container_name: ai-map
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/map_platform
+      - SPRING_DATASOURCE_USERNAME=map_user
+      - SPRING_DATASOURCE_PASSWORD=map_password
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - db
+      - eureka-server
+    networks:
+      - taptalk-network
+    restart: unless-stopped
+
+  user-auth:
+    build:
+      context: ./user-auth
+      dockerfile: Dockerfile
+    container_name: user-auth
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/userdb
+      - SPRING_DATASOURCE_USERNAME=userAuth
+      - SPRING_DATASOURCE_PASSWORD=iwanttobehappy
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - db
+      - eureka-server
+    networks:
+      - taptalk-network
+    restart: unless-stopped
+
+  db:
+    image: mariadb:latest
+    container_name: taptalk-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+      - mariadb-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - taptalk-network
+    restart: unless-stopped
+
+networks:
+  taptalk-network:
+    driver: bridge
+
+volumes:
+  mariadb-data:
