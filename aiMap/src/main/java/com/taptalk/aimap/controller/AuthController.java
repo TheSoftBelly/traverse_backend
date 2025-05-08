@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(token);
     }
 
-    @PostMapping(value = "/register", consumes = "multipart/form-data")
+    @PostMapping(value = "/register", consumes = "multipart/form-data") 
     public ResponseEntity<Void> register(@Valid RegisterRequest request) {
         authService.register(request);
         return ResponseEntity.ok().build();
