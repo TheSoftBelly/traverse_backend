@@ -1,11 +1,12 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 
-# 소스 코드 전체 복사
+# 소스 코드 복사
 COPY . .
-RUN chmod +x ./gradlew
 
-# Gradle 빌드 실행
+# Gradle wrapper 초기화 및 빌드
+RUN gradle wrapper --gradle-version 8.5
+RUN chmod +x ./gradlew
 RUN ./gradlew build -x test
 
 FROM eclipse-temurin:17-jre
