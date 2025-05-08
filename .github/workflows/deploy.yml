@@ -21,10 +21,10 @@ jobs:
       - name: SSH로 EC2에 접속하여 배포
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
+          host: ${{ secrets.TRAVERSE_HOST }}
+          username: ${{ secrets.TRAVERSE_USERNAME }}
+          key: ${{ secrets.TRAVERSE_KEY }}
+          port: ${{ secrets.TRAVERSE_PORT }}
           script: |
             echo "서버에 접속하여 배포를 시작합니다..."
             cd /home/ubuntu/Traverse-backend
