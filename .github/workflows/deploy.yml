@@ -21,13 +21,13 @@ jobs:
       - name: SSH로 EC2에 접속하여 배포
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.TRAVERSE_HOST }}
-          username: ${{ secrets.TRAVERSE_USERNAME }}
-          key: ${{ secrets.TRAVERSE_KEY }}
-          port: ${{ secrets.TRAVERSE_PORT }}
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USERNAME }}
+          key: ${{ secrets.PI_KEY }}
+          port: ${{ secrets.PI_PORT }}
           script: |
             echo "서버에 접속하여 배포를 시작합니다..."
-            cd /home/ubuntu/Traverse-backend
+            cd /home/joon/Server/traverse-backend
 
             # Git 저장소 최신화
             echo "코드 최신화 중..."
