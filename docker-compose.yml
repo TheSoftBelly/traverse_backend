@@ -82,6 +82,9 @@ services:
     container_name: taptalk-db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: map_platform
+      MYSQL_USER: map_user
+      MYSQL_PASSWORD: map_password
     volumes:
       - ./db-init:/docker-entrypoint-initdb.d
       - mariadb-data:/var/lib/mysql
@@ -90,6 +93,7 @@ services:
     networks:
       - taptalk-network
     restart: unless-stopped
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
 networks:
   taptalk-network:
