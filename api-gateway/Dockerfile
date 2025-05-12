@@ -1,4 +1,4 @@
-FROM arm32v7/openjdk:17 AS build
+FROM eclipse-temurin:17-jdk-arm64v8 AS build
 WORKDIR /app
 
 # Gradle 수동 설치
@@ -14,7 +14,7 @@ RUN gradle wrapper --gradle-version 8.5
 RUN chmod +x ./gradlew
 RUN ./gradlew build -x test
 
-FROM arm32v7/openjdk:17-jre
+FROM eclipse-temurin:17-jre-arm64v8
 WORKDIR /app
 COPY --from=build /app/build/libs/api-gateway-0.0.1-SNAPSHOT.jar /app/app.jar
 

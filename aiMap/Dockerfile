@@ -1,5 +1,5 @@
 # 1단계: 빌드용 (build stage)
-FROM arm32v7/openjdk:17 AS build
+FROM eclipse-temurin:17-jdk-arm64v8 AS build
 WORKDIR /app
 
 # Gradle 수동 설치
@@ -14,7 +14,7 @@ COPY . .
 RUN gradle bootJar --no-daemon
 
 # 2단계: 실행용 (runtime stage)
-FROM arm32v7/openjdk:17-jre
+FROM eclipse-temurin:17-jre-arm64v8
 WORKDIR /app
 
 # 빌드된 jar 복사
