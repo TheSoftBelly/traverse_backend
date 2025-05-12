@@ -1,6 +1,11 @@
 # 1단계: 빌드용 (build stage)
-FROM gradle:8.5-jdk17 AS build
+FROM arm32v7/openjdk:17 AS build
 WORKDIR /app
+
+# Gradle 수동 설치
+RUN apt-get update && apt-get install -y curl unzip && \
+    curl -s https://get.sdkman.io | bash && \
+    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle 8.5"
 
 # 소스 코드 복사
 COPY . .
@@ -9,7 +14,7 @@ COPY . .
 RUN gradle bootJar --no-daemon
 
 # 2단계: 실행용 (runtime stage)
-FROM eclipse-temurin:17-jre-alpine
+FROM arm32v7/openjdk:17-jre
 WORKDIR /app
 
 # 빌드된 jar 복사
