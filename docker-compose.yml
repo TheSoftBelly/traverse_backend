@@ -62,7 +62,7 @@ services:
       dockerfile: Dockerfile
     container_name: user-auth
     ports:
-      - "8082:8080"
+      - "8082:8082"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/userdb
       - SPRING_DATASOURCE_USERNAME=userAuth
@@ -77,7 +77,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: linuxserver/mariadb:10.6
+    image: mariadb:latest
     container_name: taptalk-db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
