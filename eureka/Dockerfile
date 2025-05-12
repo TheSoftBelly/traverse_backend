@@ -1,5 +1,5 @@
 # 빌드 단계
-FROM eclipse-temurin:17-jdk-arm64v8 AS build
+FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 COPY . .
 
@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y curl unzip && \
 RUN ./gradlew build -x test
 
 # 런타임 단계
-FROM eclipse-temurin:17-jre-arm64v8
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/build/libs/eureka-0.0.1-SNAPSHOT.jar /app/app.jar
 
