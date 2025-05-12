@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Gradle 수동 설치
-RUN apt-get update && apt-get install -y curl unzip && \
+RUN apt-get update && apt-get install -y curl unzip zip && \
     curl -s https://get.sdkman.io | bash && \
     bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle 8.5"
 
