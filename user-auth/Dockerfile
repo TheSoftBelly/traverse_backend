@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 
 # Maven 수동 설치
-RUN apt-get update && apt-get install -y maven
+RUN apt-get update && apt-get install -y maven zip unzip
 
 COPY pom.xml .
 # Download dependencies in a separate layer to improve caching
