@@ -3,10 +3,13 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 COPY . .
 
-# Gradle 수동 설치
+# Gradle 설치
 RUN apt-get update && apt-get install -y curl unzip zip && \
-    curl -s https://get.sdkman.io | bash && \
-    bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle 8.5"
+    curl -O https://downloads.gradle.org/distributions/gradle-8.5-bin.zip && \
+    unzip gradle-8.5-bin.zip && \
+    mv gradle-8.5 /opt/gradle && \
+    ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle && \
+    rm gradle-8.5-bin.zip
 
 # Gradle Wrapper 생성 및 빌드
 RUN gradle wrapper --gradle-version 8.5
