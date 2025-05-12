@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y curl unzip zip && \
     curl -s https://get.sdkman.io | bash && \
     bash -c "source $HOME/.sdkman/bin/sdkman-init.sh && sdk install gradle 8.5"
 
-# gradle wrapper 사용
+# Gradle Wrapper 생성 및 빌드
+RUN gradle wrapper --gradle-version 8.5
+RUN chmod +x ./gradlew
 RUN ./gradlew build -x test
 
 # 런타임 단계
