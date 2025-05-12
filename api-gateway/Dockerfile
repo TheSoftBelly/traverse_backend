@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y curl unzip zip && \
 # 소스 코드 복사
 COPY . .
 
-# Gradle wrapper 초기화 및 빌드
+# Gradle Wrapper 생성 및 빌드
 RUN gradle wrapper --gradle-version 8.5
 RUN chmod +x ./gradlew
 RUN ./gradlew build -x test
