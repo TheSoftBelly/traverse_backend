@@ -3,7 +3,7 @@ FROM eclipse-temurin:17-jdk AS build
 WORKDIR /app
 COPY . .
 
-# Gradle 설치
+# Gradle 설치 - 캐시 레이어 최적화
 RUN apt-get update && apt-get install -y curl unzip zip && \
     curl -O https://downloads.gradle.org/distributions/gradle-8.5-bin.zip && \
     unzip gradle-8.5-bin.zip && \
@@ -11,10 +11,10 @@ RUN apt-get update && apt-get install -y curl unzip zip && \
     ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle && \
     rm gradle-8.5-bin.zip
 
-# Gradle Wrapper 생성 및 빌드
+# Gradle Wrapper 생성 및 빌드 - 빌드 성능 최적화
 RUN gradle wrapper --gradle-version 8.5
 RUN chmod +x ./gradlew
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --no-daemon --parallel --build-cache
 
 # 런타임 단계
 FROM eclipse-temurin:17-jre

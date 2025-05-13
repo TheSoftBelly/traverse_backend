@@ -13,8 +13,8 @@ COPY src src
 # Gradle 실행 권한 부여
 RUN chmod +x ./gradlew
 
-# 테스트 제외하고 빌드
-RUN ./gradlew build -x test
+# 테스트 제외하고 빌드 - 빌드 성능 최적화
+RUN ./gradlew build -x test --no-daemon --parallel --build-cache
 
 # 런타임 이미지
 FROM eclipse-temurin:17-jre
