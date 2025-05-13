@@ -23,6 +23,11 @@ repositories {
     mavenCentral()
 }
 
+// Spring Cloud 버전 정의
+ext {
+    set('springCloudVersion', "2024.0.0")
+}
+
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
@@ -36,6 +41,10 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.3'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.17.3'
+    
+    // Eureka Client 의존성 추가
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
@@ -45,8 +54,13 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'
+}
 
-
+// Spring Cloud 의존성 관리
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {
