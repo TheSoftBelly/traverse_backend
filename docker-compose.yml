@@ -8,8 +8,8 @@ services:
       - "8761:8761"
     environment:
       - SPRING_PROFILES_ACTIVE=default
-      - EUREKA_INSTANCE_HOSTNAME=localhost
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://localhost:8761/eureka/
+      - EUREKA_INSTANCE_HOSTNAME=eureka-server
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     networks:
       - taptalk-network
     healthcheck:
@@ -34,6 +34,12 @@ services:
         condition: service_healthy
     networks:
       - taptalk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   ai-map:
@@ -58,22 +64,39 @@ services:
 
   user-auth:
     build:
-      context: ./user-auth
+      context: ./admin_gradle/user-auth
       dockerfile: Dockerfile
     container_name: user-auth
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/userdb
-      - SPRING_DATASOURCE_USERNAME=userAuth
-      - SPRING_DATASOURCE_PASSWORD=iwanttobehappy
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/userdb?allowPublicKeyRetrieval=true&useSSL=false
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root_password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_APPLICATION_NAME=user-auth
+      - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
+      - EUREKA_INSTANCE_HOSTNAME=user-auth
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=10
+      - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=30
+      - SERVER_PORT=8082
     depends_on:
-      - db
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
+      db:
+        condition: service_started
     networks:
       - taptalk-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
     restart: unless-stopped
 
   db:
@@ -84,6 +107,7 @@ services:
       MYSQL_DATABASE: map_platform
       MYSQL_USER: map_user
       MYSQL_PASSWORD: map_password
+      MYSQL_MULTIPLE_DATABASES: map_platform,userdb
       TZ: Asia/Seoul
     volumes:
       - ./db-init:/docker-entrypoint-initdb.d
@@ -92,12 +116,29 @@ services:
       - "3306:3306"
     networks:
       - taptalk-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-proot_password",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     restart: unless-stopped
     command: >
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci 
       --innodb_use_native_aio=0 
       --skip-name-resolve
+      --default-authentication-plugin=mysql_native_password
 
 networks:
   taptalk-network:

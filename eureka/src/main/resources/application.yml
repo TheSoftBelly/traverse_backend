@@ -7,12 +7,12 @@ spring:
 
 eureka:
   instance:
-    hostname: localhost
+    hostname: ${EUREKA_INSTANCE_HOSTNAME:localhost}
   client:
     registerWithEureka: false
     fetchRegistry: false
     serviceUrl:
-      defaultZone: http://localhost:8761/eureka/
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
   server:
     waitTimeInMsWhenSyncEmpty: 0
     enableSelfPreservation: false
