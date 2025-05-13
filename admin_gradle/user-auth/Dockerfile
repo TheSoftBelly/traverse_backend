@@ -1,17 +1,30 @@
-# Base image: OpenJDK with Alpine
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:17-jdk AS build
+WORKDIR /app
 
-# Define the path to the application JAR file
-ARG APP_JAR_PATH=build/libs/*.jar
+# Gradle 래퍼 파일 복사
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle .
+COPY settings.gradle .
 
-# Copy the JAR file to the container
-COPY ${APP_JAR_PATH} app.jar
+# 소스 코드 복사
+COPY src src
 
-# Define the application execution entry point
-ENTRYPOINT ["java", "-jar", "/app.jar"]
+# Gradle 실행 권한 부여
+RUN chmod +x ./gradlew
 
-# Extracted constant for the exposed application port
-ARG EXPOSED_PORT=8082
+# 테스트 제외하고 빌드
+RUN ./gradlew build -x test
 
-# Expose the application port
-EXPOSE ${EXPOSED_PORT}
+# 런타임 이미지
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+
+# 빌드 스테이지에서 생성된 JAR 파일 복사
+COPY --from=build /app/build/libs/*.jar /app/app.jar
+
+# 애플리케이션 실행
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+
+# 포트 노출
+EXPOSE 8082
