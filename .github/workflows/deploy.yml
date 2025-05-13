@@ -2,8 +2,8 @@ name: AWS EC2 배포 워크플로우
 
 on:
   push:
-    branches: [main] # main 브랜치에 push가 발생할 때 실행
-  workflow_dispatch: # 수동으로 워크플로우 실행 가능하도록 설정
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -13,7 +13,7 @@ jobs:
       - name: 코드 체크아웃
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0 # 전체 히스토리 가져오기
+          fetch-depth: 0
 
       - name: 배포 시작 알림
         run: echo "배포 프로세스를 시작합니다..."
@@ -29,22 +29,18 @@ jobs:
             echo "서버에 접속하여 배포를 시작합니다..."
             cd /home/joon/Server/traverse_backend
 
-            # Git 저장소 최신화
             echo "코드 최신화 중..."
             git fetch --all
             git reset --hard origin/main
 
-            # 환경 변수 파일 설정 (필요한 경우)
             if [ -f .env.example ] && [ ! -f .env ]; then
               cp .env.example .env
             fi
 
-            # Docker 컨테이너 재시작
             echo "Docker 컨테이너 재시작 중..."
-            docker-compose down
-            docker-compose up -d --build
+            docker compose down
+            docker compose up -d --build
 
-            # 불필요한 Docker 이미지 제거
             echo "불필요한 Docker 이미지 정리 중..."
             docker image prune -af
 
