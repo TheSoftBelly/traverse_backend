@@ -12,5 +12,8 @@ GRANT ALL PRIVILEGES ON map_platform.* TO 'map_user'@'%';
 -- Grant privileges to userAuth for userdb database
 GRANT ALL PRIVILEGES ON userdb.* TO 'userAuth'@'%';
 
+-- Grant privileges to root for userdb database
+GRANT ALL PRIVILEGES ON userdb.* TO 'root'@'%';
+
 -- Apply changes
 FLUSH PRIVILEGES; 
