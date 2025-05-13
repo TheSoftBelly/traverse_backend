@@ -12,4 +12,4 @@ TapTalk Backend는 다음 마이크로서비스로 구성되어 있습니다:
 
 CI/CD : Git Actions
 
-Server : 라즈베리파이4 8GB (자체 서버)
+Server : 라즈베리파이4 8GB (자체 서버) - 우분투
