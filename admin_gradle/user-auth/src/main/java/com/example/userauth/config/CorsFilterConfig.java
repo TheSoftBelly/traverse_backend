@@ -19,7 +19,7 @@ public class CorsFilterConfig {
         CorsConfiguration config = new CorsConfiguration();
 
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://localhost:8082"));
+        config.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
         config.setAllowedMethods(Collections.singletonList("*"));
         config.setAllowedHeaders(Collections.singletonList("*"));
 
