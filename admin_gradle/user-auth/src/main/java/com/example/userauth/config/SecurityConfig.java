@@ -65,7 +65,7 @@ public class SecurityConfig {
                                 "/api/hashtags","/api/hashtags/{hashtag_id}","/api/hashtags/wordcloud",
                                 "/api/users/statistics", "/api/posts/statistics", "/api/hashtags/{hashtag_id}/status",
                                 "/api/hashtags/statistics","/api/admins/{admin_id}/role", "/api/auth/generate-token",
-                                "/api/auth/admins/","/api/users/statistics").permitAll()
+                                "/api/auth/admins/","/api/users/statistics","/api/admins/inquiries").permitAll()
                         .anyRequest().authenticated()
                 );
 
