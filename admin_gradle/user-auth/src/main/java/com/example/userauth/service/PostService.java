@@ -5,10 +5,10 @@ import com.example.userauth.dto.PostResponseDTO;
 import com.example.userauth.dto.PostStatusUpdateRequest;
 import com.example.userauth.model.Post;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -86,6 +86,12 @@ public class PostService {
         return new PostListResponseDTO(postDtos, totalCount, page, totalPages);
     }
 
+    private String formatTimestampToISO(Timestamp timestamp) {
+        if (timestamp == null) return null;
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return isoFormat.format(timestamp.toDate());
+    }
 
 
     /**
@@ -99,8 +105,8 @@ public class PostService {
         post.setStatus(document.getString("status"));  // 게시물 상태
         post.setUser_id(document.getString("user_id"));  // 사용자 ID
         post.setUser_name(document.getString("user_name"));  // 사용자 이름
-        post.setCreated_at(document.getTimestamp("created_at"));  // 생성일시
-        post.setUpdated_at(document.getTimestamp("updated_at"));  // 업데이트 일시
+        post.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 생성일시
+        post.setUpdated_at(formatTimestampToISO(document.getTimestamp("updated_at")));  // 업데이트 일시
         post.setHash_tags((List<String>) document.get("hash_tags"));  // 해시태그 목록
         post.setPost_images((List<String>) document.get("post_images"));  // 게시물 이미지 목록
         // 리포트 수 처리 (null 체크)
@@ -176,7 +182,7 @@ public class PostService {
         comment.setUser_id(document.getString("user_id"));
         comment.setUser_name(document.getString("user_name"));
         comment.setContent(document.getString("content"));
-        comment.setCreated_at(document.getTimestamp("created_at"));
+        comment.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));
         comment.setReport_count(document.getLong("report_count").intValue());
         return comment;
     }
@@ -242,7 +248,7 @@ public class PostService {
             postData.put("title", document.getString("title"));
             postData.put("user_id", document.getString("user_id"));
             postData.put("user_name", document.getString("user_name"));
-            postData.put("created_at", document.getTimestamp("created_at"));
+            postData.put("created_at", formatTimestampToISO(document.getTimestamp("created_at")));
             //postData.put("flag_reason", document.getString("flag_reason"));
             postData.put("severity", document.getLong("severity"));
 
@@ -286,11 +292,15 @@ public class PostService {
         Date start = dateFormat.parse(startDate);
         Date end = dateFormat.parse(endDate);
 
+        Timestamp startTimestamp = Timestamp.of(start);
+        Timestamp endTimestamp = Timestamp.of(end);
 
         // 게시물 쿼리 작성 (날짜 범위에 맞는 게시물 찾기)
         CollectionReference postsRef = db.collection("Post");
-        Query query = postsRef.whereGreaterThanOrEqualTo("created_at", start)
-                .whereLessThanOrEqualTo("created_at", end);
+        ;
+
+        Query query = postsRef.whereGreaterThanOrEqualTo("created_at", startTimestamp)
+                .whereLessThanOrEqualTo("created_at", endTimestamp);
 
         // 게시물 통계 데이터 처리
         ApiFuture<QuerySnapshot> future = query.get();

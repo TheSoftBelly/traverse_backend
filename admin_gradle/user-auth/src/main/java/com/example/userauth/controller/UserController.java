@@ -57,6 +57,7 @@ public class UserController {
             userMap.put("last_login_at", user.getLast_login_at());
             userMap.put("report_count", user.getReport_count());
             userMap.put("country_code", user.getCountry_code());
+            userMap.put("status", user.getStatus());
             return userMap;
         }).collect(Collectors.toList());
 

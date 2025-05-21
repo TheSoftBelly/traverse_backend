@@ -23,8 +23,8 @@ public class User {
     private List<String> followers; // 팔로워 목록
     @ElementCollection
     private List<String> following; // 팔로잉 목록
-    private Timestamp created_at;
-    private Timestamp last_login_at;
+    private String  created_at;
+    private String  last_login_at;
     private String phone_number; // 전화번호
     private String location; // 위치
     private String gender; // 성별
@@ -53,8 +53,8 @@ public class User {
                 String email, String profile_picture,
                 int post_count, int report_count, String bio,
                 List<String> followers,
-                List<String> following, Timestamp created_at,
-                Timestamp last_login_at, String phone_number,
+                List<String> following, String  created_at,
+                String  last_login_at, String phone_number,
                 String location, String gender,
                 String birthdate, String country_code,
                 String native_language, String preferred_language,
@@ -170,19 +170,19 @@ public class User {
         this.following = following;
     }
 
-    public Timestamp getCreated_at() {
+    public String  getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(Timestamp createdAt) {
+    public void setCreated_at(String  createdAt) {
         this.created_at = createdAt;
     }
 
-    public Timestamp getLast_login_at() {
+    public String  getLast_login_at() {
         return last_login_at;
     }
 
-    public void setLast_login_at(Timestamp lastLoginAt) {
+    public void setLast_login_at(String  lastLoginAt) {
         this.last_login_at = lastLoginAt;
     }
 

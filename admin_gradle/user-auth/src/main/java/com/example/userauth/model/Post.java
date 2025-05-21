@@ -13,7 +13,7 @@ public class Post {
     private String post_id;
     private String user_id;
     private String status;
-    private Timestamp created_at;
+    private String created_at;
     private Long report_count;
     private int like_count;
     private int view_count;
@@ -23,7 +23,7 @@ public class Post {
     private String user_name;  // 추가: 사용자 이름
     private String title;  // 추가: 제목
     private String post_content;  // 추가: 게시물 내용
-    private Timestamp updated_at;  // 추가: 수정 시간
+    private String updated_at;  // 추가: 수정 시간
     private int comment_count;  // 추가: 댓글 수
     @ElementCollection
     private List<String> post_images;  // 추가: 게시물 이미지
@@ -39,7 +39,7 @@ public class Post {
         private String user_id;
         private String user_name;
         private String content;
-        private Timestamp created_at;
+        private String created_at;
         private int report_count;
         private int like_count;
         private int view_count;
@@ -76,11 +76,11 @@ public class Post {
             this.content = content;
         }
 
-        public Timestamp getCreated_at() {
+        public String getCreated_at() {
             return created_at;
         }
 
-        public void setCreated_at(Timestamp created_at) {
+        public void setCreated_at(String created_at) {
             this.created_at = created_at;
         }
 
@@ -167,11 +167,11 @@ public class Post {
         this.status = status;
     }
 
-    public Timestamp getCreated_at() {
+    public String getCreated_at() {
         return created_at;
     }
 
-    public void setCreated_at(Timestamp created_at) {
+    public void setCreated_at(String created_at) {
         this.created_at = created_at;
     }
 
@@ -231,11 +231,11 @@ public class Post {
         this.post_content = post_content;
     }
 
-    public Timestamp getUpdated_at() {
+    public String getUpdated_at() {
         return updated_at;
     }
 
-    public void setUpdated_at(Timestamp updated_at) {
+    public void setUpdated_at(String updated_at) {
         this.updated_at = updated_at;
     }
 

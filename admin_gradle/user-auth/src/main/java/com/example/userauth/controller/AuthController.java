@@ -70,10 +70,17 @@ public class AuthController {
 
     // 관리자 목록 조회 API (이름과 role만 반환)
     @GetMapping("/admins")
-    public ResponseEntity<List<AdminSummary>> getAllAdmins() {
-        List<AdminSummary> adminSummaries = authService.getAllAdminSummaries();
-        return ResponseEntity.ok(adminSummaries);
+    public ResponseEntity<Map<String, Object>> getAllAdmins() {
+        List<AdminSummary> admins = authService.getAllAdminSummaries();
+        long totalCount = authService.getAdminCount();  // count를 반환하는 메서드 추가 필요
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("admins", admins);
+        response.put("total_count", totalCount);
+
+        return ResponseEntity.ok(response);
     }
+
 
     // 관리자 상세 정보 조회 API
     @GetMapping("/admins/{adminId}")
