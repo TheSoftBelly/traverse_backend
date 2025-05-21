@@ -6,7 +6,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Collections;  // import 추가 필요
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -14,7 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class ReportService {
@@ -42,7 +43,7 @@ public class ReportService {
             ReportDTO dto = new ReportDTO();
             dto.setReport_id(documentSnapshot.getId());
             dto.setReported_user_id(documentSnapshot.getString("reported_user_id"));
-            dto.setReported_user_id(documentSnapshot.getString("reporter_user_id"));
+            dto.setReporter_user_id(documentSnapshot.getString("reporter_user_id"));
             dto.setReported_user_name(documentSnapshot.getString("reported_user_name"));
             dto.setReason(documentSnapshot.getString("reason"));
             dto.setDescription(documentSnapshot.getString("description"));
@@ -191,9 +192,8 @@ public class ReportService {
 
     public String processReport(String reportId, String status, String actionTaken, String comment,
                                 boolean notifyReporter, boolean notifyReported, Integer suspensionDuration) {
-        // Firestore에서 신고 ID에 해당하는 문서 가져오기
         DocumentReference reportRef = firestore.collection("reports").document(reportId);
-        String message = "";  // 결과 메시지를 저장할 변수
+        String message = "";
 
         try {
             DocumentSnapshot reportSnapshot = reportRef.get().get();
@@ -202,64 +202,105 @@ public class ReportService {
                 throw new IllegalArgumentException("ID에 해당하는 신고를 찾을 수 없습니다: " + reportId);
             }
 
-            // 상태 업데이트 및 처리할 액션
-            reportRef.update("status", status, "comment", comment).get();
+            // 신고 문서 상태 업데이트 및 코멘트
+            reportRef.update("status", status, "action_taken", actionTaken, "comment", comment).get();
 
-            // 처리된 조치에 따라 상태를 갱신
+            // 신고 유형 가져오기
+            String reportType = reportSnapshot.getString("report_type");
+
+            // 신고 대상 ID (유저 신고면 reported_user_id)
+            String reportedUserId = reportSnapshot.getString("reported_user_id");
+
+            // 사용자 신고일 경우 users 컬렉션에 상태 반영
+            if ("user".equals(reportType) && reportedUserId != null) {
+                DocumentReference userRef = firestore.collection("users").document(reportedUserId);
+                Map<String, Object> updateMap = new HashMap<>();
+                updateMap.put("status", status);
+                updateMap.put("action_taken", actionTaken);
+                if ("suspend".equals(actionTaken) && suspensionDuration != null) {
+                    updateMap.put("suspension_duration", suspensionDuration);
+                }
+                userRef.update(updateMap).get();
+            }
+
+            // 그 외 액션별 처리 (예: 알림, 게시물 삭제 등)...
+            // actionTaken에 따른 메시지 설정
             switch (actionTaken.toLowerCase()) {
                 case "approve":
-                    // 신고 승인 처리
-                    reportRef.update("status", "approved").get();
-                    if (notifyReporter) {
-                        // 신고자에게 알림 보내는 로직 추가 (예시)
-                        // sendNotificationToReporter(reportId);
-                    }
-                    if (notifyReported) {
-                        // 신고된 사용자에게 알림 보내는 로직 추가 (예시)
-                        // sendNotificationToReported(reportId);
-                    }
                     message = "신고가 승인되었습니다.";
                     break;
-
                 case "reject":
-                    // 신고 거부 처리
-                    reportRef.update("status", "rejected").get();
                     message = "신고가 거부되었습니다.";
                     break;
-
                 case "escalate":
-                    // 신고 승격 처리 (예: 관리자에게 전달)
-                    reportRef.update("status", "escalated").get();
                     message = "신고가 관리자에게 전달되었습니다.";
                     break;
-
+                case "warn":
+                    message = "경고 조치가 완료되었습니다.";
+                    break;
                 case "suspend":
-                    // 사용자 정지 처리 (정지 기간을 기반으로 추가 작업)
                     if (suspensionDuration != null) {
-                        // 사용자 정지 기간을 처리하는 로직 추가
-                        // 예: 유저의 정지 상태 업데이트
-                        // suspendUser(reportSnapshot.getString("reported_user_id"), suspensionDuration);
                         message = suspensionDuration + "일 동안 사용자가 정지되었습니다.";
                     } else {
                         message = "정지 기간이 필요합니다.";
                     }
                     break;
-
-                default:
-                    message = "잘못된 액션이 지정되었습니다. 'approve', 'reject', 'escalate', 'suspend' 중 하나를 사용하세요.";
+                case "delete_content":
+                    message = "콘텐츠가 삭제되었습니다.";
                     break;
+                case "ban":
+                    message = "사용자가 영구 정지되었습니다.";
+                    break;
+                default:
+                    message = "처리된 액션: " + actionTaken;
             }
+
         } catch (InterruptedException | ExecutionException e) {
-            // Firestore 작업에서 발생한 예외 처리
             message = "신고 처리 중 오류가 발생했습니다: " + e.getMessage();
         } catch (Exception e) {
-            // 일반적인 예외 처리
             message = "예상치 못한 오류가 발생했습니다: " + e.getMessage();
         }
 
-        return message;  // 최종적으로 처리된 메시지 반환
-
-
+        return message;
     }
+
+
+    public Map<String, Object> getReportDetailsAsMap(String reportId) throws InterruptedException, ExecutionException {
+        Optional<ReportDTO> optionalReport = getReportDetails(reportId);
+        if (optionalReport.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        ReportDTO report = optionalReport.get();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("report_id", report.getReport_id());
+
+        // target_id = reported_user_id (기존 필드 재활용)
+        response.put("target_id", report.getReported_user_id());
+
+        // target_details = reported_user_name 또는 Object 형태로 넣을 수 있음
+        // 여기서는 String으로 넣음
+        response.put("target_details", report.getReported_user_name());
+
+        // reporter_user_id는 report.getReporter_user_id()로 그대로 넣고,
+        // reporter_details는 Map<String, Object>로 ReportDTO에 있어야 함
+        response.put("reporter_user_id", report.getReporter_user_id());
+        response.put("reporter_details", report.getReporter_user_id());  // reporter_user_id와 동일하게 세팅
+
+        response.put("reason", report.getReason());
+        response.put("description", report.getDescription());
+        response.put("evidence", report.getEvidence());
+        response.put("status", report.getStatus());
+        response.put("created_at", report.getCreated_at());
+        response.put("updated_at", report.getUpdated_at());
+        response.put("processed_by", report.getProcessed_by());
+        response.put("processed_at", report.getProcessed_at());
+        response.put("comment", report.getComment());
+        response.put("action_taken", report.getAction_taken());
+        response.put("type", report.getType());
+
+        return response;
+    }
+
 
 }

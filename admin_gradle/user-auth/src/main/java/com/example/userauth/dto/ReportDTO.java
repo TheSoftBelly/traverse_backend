@@ -6,6 +6,7 @@ import com.google.cloud.Timestamp;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ReportDTO {
@@ -13,15 +14,19 @@ public class ReportDTO {
     private String reported_user_id;
     private String reported_user_name;
     private String reporter_user_id;
+
+    private String type;                // 신고 유형 (user, post, chat)
+    private String target_id;           // 신고 대상 ID (reported_user_id와 동일)
+    private Object target_details;      // 신고 대상 상세 정보 (reported_user_name 포함)
+
+    private Map<String, Object> reporter_details;  // 신고자 정보 (username, email 등)
+
     private String reason;
     private String description;
     private String status;
     private LocalDateTime created_at;   //Timestamp이긴함
     private LocalDateTime updated_at;   //Timestamp이긴함
     private Long severity;
-    private String type;
-    private String target_id;
-    private Object target_details; // This could be a complex object depending on the type
     private List<String> evidence;
     private String processed_by;
     private LocalDateTime processed_at;
@@ -32,6 +37,15 @@ public class ReportDTO {
     private String chat_id;
     private String chat_room_id;
     // Getters and Setters
+
+
+    public Map<String, Object> getReporter_details() {
+        return reporter_details;
+    }
+
+    public void setReporter_details(Map<String, Object> reporter_details) {
+        this.reporter_details = reporter_details;
+    }
 
     public String getReport_id() {
         return report_id;
@@ -209,4 +223,6 @@ public class ReportDTO {
     public void setChat_room_id(String chat_room_id) {
         this.chat_room_id = chat_room_id;
     }
+
+
 }

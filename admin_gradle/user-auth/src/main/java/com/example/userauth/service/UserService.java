@@ -81,6 +81,14 @@ public class UserService {
         return response;
     }
 
+    private String formatTimestampToISO(Timestamp timestamp) {
+        if (timestamp == null) return null;
+        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return isoFormat.format(timestamp.toDate());
+    }
+
+
     // Firestore 문서를 User 객체로 변환
     private User convertToUser(DocumentSnapshot document) {
         User user = new User();
@@ -88,14 +96,15 @@ public class UserService {
         user.setUser_name(document.getString("user_name"));
         user.setEmail(document.getString("email"));
         user.setVerify((List<String>) document.get("verify"));
-        user.setCreated_at(document.getTimestamp("created_at"));
-        user.setLast_login_at(document.getTimestamp("last_login_at"));
+        user.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 수정됨
+        user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));  // 수정됨
         user.setReport_count(document.getLong("report_count") != null ? document.getLong("report_count").intValue() : 0);
         user.setCountry_code(document.getString("country_code"));
         user.setTotal_count(document.get("total_count") != null ? document.getLong("total_count").intValue() : 0);
         user.setCurrent_page(document.get("current_page") != null ? document.getLong("current_page").intValue() : 0);
         user.setTotal_pages(document.get("total_pages") != null ? document.getLong("total_pages").intValue() : 0);
-
+        String status = document.contains("status") ? document.getString("status") : "Active";
+        user.setStatus(status);
 
         return user;
     }
@@ -143,21 +152,22 @@ public class UserService {
         user.setBio(document.getString("bio"));
         user.setFollowers((List<String>) document.get("followers"));
         user.setFollowing((List<String>) document.get("following"));
-        user.setCreated_at(document.getTimestamp("created_at"));
-        user.setLast_login_at(document.getTimestamp("last_login_at"));
+        user.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 수정됨
+        user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));  // 수정됨
         String phone_number = (String) document.get("phone_number");
         user.setphone_number(document.getString("phone_number"));
         user.setLocation(document.getString("location"));
         user.setGender(document.getString("gender"));
         user.setBirthdate(document.getString("birthdate"));
-        user.setLast_login_at(document.getTimestamp("last_login_at"));
+        user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));
         String country_code = (String) document.get("country_code");
         user.setCountry_code(document.getString("country_code"));
         user.setNative_language(document.getString("native_language"));
         user.setPreferred_language(document.getString("preferred_language"));
         List<String> interestKeywords = (List<String>) document.get("interest_keywords");
         user.setInterest_keywords((List<String>) document.get("interest_keywords"));
-
+        String status = document.contains("status") ? document.getString("status") : "Active";
+        user.setStatus(status);
         // 콘솔에 출력
         System.out.println("Interest Keywords: " + interestKeywords);
         System.out.println("phone_number: " + phone_number);

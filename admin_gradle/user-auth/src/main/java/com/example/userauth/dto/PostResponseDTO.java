@@ -4,6 +4,7 @@ import com.example.userauth.model.Post;
 import lombok.Getter;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class PostResponseDTO {
@@ -29,18 +30,26 @@ public class PostResponseDTO {
         this.title = post.getTitle();
         this.post_content = post.getPost_content();
         this.user_id = post.getUser_id();
-        this.user_name = post.getUser_name(); // 사용자 이름을 포함
+        this.user_name = post.getUser_name();
         this.status = post.getStatus();
-        this.created_at = post.getCreated_at().toDate().toString();
-        this.updated_at = post.getUpdated_at() != null ? post.getUpdated_at().toDate().toString() : null;
-        this.report_count = post.getReport_count(); // 리포트 카운트
-        this.like_count = post.getLike_count(); // 좋아요 카운트
-        this.view_count = post.getView_count(); // 조회수 카운트
+
+        this.created_at = post.getCreated_at();
+        this.updated_at = post.getUpdated_at();
+
+        this.report_count = post.getReport_count();
+        this.like_count = post.getLike_count();
+        this.view_count = post.getView_count();
         this.comment_count = post.getComments() != null ? post.getComments().size() : 0;
         this.hash_tags = post.getHash_tags();
         this.post_images = post.getPost_images();
-        this.comments = post.getComments() != null ? post.getComments().stream().map(CommentResponseDto::new).toList() : null;
-        this.reports = post.getReports() != null ? post.getReports().stream().map(ReportResponseDto::new).toList() : null;
+
+        this.comments = post.getComments() != null
+                ? post.getComments().stream().map(CommentResponseDto::new).collect(Collectors.toList())
+                : null;
+
+        this.reports = post.getReports() != null
+                ? post.getReports().stream().map(ReportResponseDto::new).collect(Collectors.toList())
+                : null;
     }
 
     @Getter
@@ -57,7 +66,7 @@ public class PostResponseDTO {
             this.user_id = comment.getUser_id();
             this.user_name = comment.getUser_name();
             this.content = comment.getContent();
-            this.created_at = comment.getCreated_at().toDate().toString();
+            this.created_at = comment.getCreated_at();
             this.report_count = comment.getReport_count();
         }
     }

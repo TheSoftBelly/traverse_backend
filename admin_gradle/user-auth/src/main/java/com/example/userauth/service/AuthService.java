@@ -104,4 +104,8 @@ public class AuthService {
         return adminRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Admin not found with id " + id));
     }
+
+    public long getAdminCount() {
+        return adminRepository.count();
+    }
 }
