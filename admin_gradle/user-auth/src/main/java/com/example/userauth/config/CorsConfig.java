@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")  // 특정 URL 패턴 허용
-                        .allowedOrigins("http://211.187.162.65:3000") // 프론트엔드 도메인 허용
+                        .allowedOrigins("http://211.187.162.65:3000", "http://localhost:3000") // 프론트엔드 도메인 허용
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                         .allowedHeaders("*") // 모든 요청 헤더 허용
                         .allowCredentials(true); // 쿠키/인증 정보 포함 허용
