@@ -1,4 +1,3 @@
-use questdb;
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
 (UUID(), '전통 다도 체험하기', '도쿄 전통 다도 문화를 직접 체험해보세요.', 'CULTURE', 'EASY', 45, 'SOLO', 100, '001', NOW()),
 (UUID(), '하라주쿠 스트리트 패션 탐방', '하라주쿠에서 일본 젊은이들의 패션 문화를 경험하세요.', 'CULTURE', 'MEDIUM', 60, 'BOTH', 100, '001', NOW()),
