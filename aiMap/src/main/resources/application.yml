@@ -3,8 +3,8 @@ spring:
     name: ai-map
   datasource:
     url: jdbc:mariadb://localhost:3306/questdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: jang0504
+    username: map_user
+    password: map_password
     driver-class-name: org.mariadb.jdbc.Driver
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
@@ -20,19 +20,6 @@ spring:
       mode: always
       schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
-  mail:
-    host: smtp.naver.com
-    port: 587
-    username: jjoon1024@naver.com
-    password: jang0504?
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-          ssl:
-            trust: smtp.naver.com
 
 management:
   endpoints:
