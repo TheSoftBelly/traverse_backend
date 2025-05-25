@@ -18,7 +18,11 @@ spring:
   sql:
     init:
       mode: always
+      schema-locations: classpath:schema.sql
       data-locations: classpath:data.sql
+  jpa:
+    hibernate:
+      ddl-auto: none
   mail:
     host: smtp.naver.com
     port: 587
