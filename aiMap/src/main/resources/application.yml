@@ -2,7 +2,7 @@ spring:
   application:
     name: ai-map
   datasource:
-    url: jdbc:mariadb://localhost:3306/questdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mariadb://db:3306/questdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: map_user
     password: map_password
     driver-class-name: org.mariadb.jdbc.Driver
@@ -41,7 +41,7 @@ eureka:
     instanceId: ${spring.application.name}:${server.port}
 
 server:
-  port: 8080
+  port: 8081
 
 file:
   upload-dir: ./uploads
