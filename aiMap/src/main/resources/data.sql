@@ -45,7 +45,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '요가 클래스 참여하기', '도쿄 요가 스튜디오에서 몸과 마음을 힐링합니다.', 'HEALING','EASY', 45, 'GROUP', 100, '001', NOW());
 
 
-use questdb;
+
 
 -- CULTURE (문화 체험) 5개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
@@ -111,7 +111,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '명상 카페 방문', '조용한 카페에서 명상과 차 한잔의 여유를 즐기세요.', 'HEALING', 'EASY', 50, 'SOLO', 100, '002', NOW()),
 (UUID(), '스파 마사지 체험', '전문가와 함께 스파 마사지로 몸과 마음을 치유하세요.', 'HEALING', 'MEDIUM', 70, 'SOLO', 100, '002', NOW());
 
-use questdb;
+
 
 -- CULTURE (문화 체험)
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
@@ -203,7 +203,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 -- HEALING 추가 1개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
 (UUID(), '도쿄 해변가에서 일출 명상', '도쿄 인근 해변에서 일출과 함께 명상하며 하루를 시작해보세요.', 'HEALING', 'EASY', 50, 'SOLO', 100, '001', NOW());
-USE questdb;
+
 
 -- CULTURE (문화 체험) 5개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
@@ -268,7 +268,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '로마 온천 체험', '로마 근처 온천에서 피로를 풀고 힐링하세요.', 'HEALING', 'MEDIUM', 90, 'SOLO', 103, '001', NOW()),
 (UUID(), '바티칸 정원 명상', '바티칸 정원에서 조용한 명상을 경험하세요.', 'HEALING', 'HARD', 80, 'SOLO', 103, '001', NOW()),
 (UUID(), '로마 요가 클래스 참여', '야외에서 진행하는 요가 클래스에 참여해 몸과 마음을 치유하세요.', 'HEALING', 'MEDIUM', 60, 'GROUP', 103, '001', NOW());
-USE questdb;
+
 
 -- CULTURE (문화 체험) 5개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
@@ -333,7 +333,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '밀란 온천 체험', '근처 온천에서 피로를 풀고 힐링하세요.', 'HEALING', 'MEDIUM', 90, 'SOLO', 103, '002', NOW()),
 (UUID(), '밀란 요가 클래스 참여', '야외 요가 클래스에 참여해 몸과 마음을 치유하세요.', 'HEALING', 'MEDIUM', 60, 'GROUP', 103, '002', NOW()),
 (UUID(), '밀란 미술관에서 힐링하기', '미술관에서 예술을 감상하며 마음을 편안하게 하세요.', 'HEALING', 'EASY', 80, 'SOLO', 103, '002', NOW());
-USE questdb;
+
 
 -- CULTURE (문화 체험) 5개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
@@ -398,7 +398,7 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '런던 스파 체험', '스파에서 피로를 풀고 휴식을 취하세요.', 'HEALING', 'MEDIUM', 90, 'SOLO', 104, '001', NOW()),
 (UUID(), '요가 클래스 참여', '야외 요가 수업에 참여해 몸과 마음을 치유하세요.', 'HEALING', 'MEDIUM', 60, 'GROUP', 104, '001', NOW()),
 (UUID(), '런던 미술관에서 힐링하기', '미술관에서 예술 작품을 감상하며 마음을 안정시키세요.', 'HEALING', 'EASY', 80, 'SOLO', 104, '001', NOW());
-USE questdb;
+
 
 -- CULTURE (문화 체험) 5개
 INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at) VALUES
