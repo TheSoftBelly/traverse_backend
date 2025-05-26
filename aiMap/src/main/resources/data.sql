@@ -571,3 +571,13 @@ VALUES
 (UUID(), '제주 바다 명상', '제주의 푸른 바다를 바라보며 명상을 해보세요.', 'HEALING', 'EASY', 40, 'SOLO', 39, 1, NOW()),
 (UUID(), '곶자왈 숲 트레킹', '제주의 곶자왈 원시림을 걸으며 자연과 교감해보세요.', 'HEALING', 'MEDIUM', 80, 'SOLO', 39, 1, NOW()),
 (UUID(), '온천 스파 체험', '제주의 온천 스파에서 피로를 풀어보세요.', 'HEALING', 'EASY', 70, 'BOTH', 39, 1, NOW());
+
+DELETE FROM quests
+WHERE id IN (
+    SELECT id FROM (
+        SELECT id,
+               ROW_NUMBER() OVER (PARTITION BY title ORDER BY created_at) AS rn
+        FROM quests
+    ) AS sub
+    WHERE rn > 1
+);
