@@ -464,6 +464,122 @@ INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, n
 (UUID(), '템플에서 조용한 시간 보내기', '사원에서 조용한 시간을 보내며 마음을 치유하세요.', 'HEALING', 'EASY', 50, 'SOLO', 105, '001', NOW()),
 (UUID(), '방콕 자연 공원 방문', '자연과 함께 힐링할 수 있는 공원을 방문하세요.', 'HEALING', 'EASY', 70, 'SOLO', 105, '001', NOW());
 
+INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at)
+VALUES
+-- CULTURE
+(UUID(), '남산골 한옥마을 탐방', '서울의 전통 가옥과 문화가 살아있는 남산골 한옥마을을 둘러보세요.', 'CULTURE', 'EASY', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '북촌 한옥거리 산책', '북촌에서 전통 한옥의 아름다움을 감상하며 산책하세요.', 'CULTURE', 'EASY', 45, 'SOLO', 1, 1, NOW()),
+(UUID(), '전통 무예 공연 관람', '국립국악원에서 전통 무예 공연을 감상해보세요.', 'CULTURE', 'MEDIUM', 70, 'GROUP', 1, 1, NOW()),
+(UUID(), '한지 공예 체험', '전통 한지를 활용한 공예를 직접 만들어보세요.', 'CULTURE', 'MEDIUM', 90, 'GROUP', 1, 1, NOW()),
+(UUID(), '서울 전통 의상 체험', '한복을 입고 서울 도심 속 한옥에서 사진을 찍어보세요.', 'CULTURE', 'EASY', 60, 'BOTH', 1, 1, NOW()),
+
+-- HISTORY
+(UUID(), '경복궁 역사 탐방', '조선의 정궁, 경복궁에서 역사 속 왕실 문화를 알아보세요.', 'HISTORY', 'MEDIUM', 80, 'SOLO', 1, 1, NOW()),
+(UUID(), '덕수궁 석조전 관람', '서양식 궁전 석조전에서 대한제국의 흔적을 찾아보세요.', 'HISTORY', 'MEDIUM', 70, 'SOLO', 1, 1, NOW()),
+(UUID(), '서울역사박물관 관람', '서울의 과거와 현재를 한눈에 볼 수 있는 박물관을 방문해보세요.', 'HISTORY', 'EASY', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '종묘 제례악 감상', '유네스코 등재된 제례악을 종묘에서 감상해보세요.', 'HISTORY', 'MEDIUM', 90, 'GROUP', 1, 1, NOW()),
+(UUID(), '한성백제박물관 탐방', '서울의 고대 역사, 백제 시대를 알아보세요.', 'HISTORY', 'EASY', 50, 'SOLO', 1, 1, NOW()),
+
+-- PHOTO
+(UUID(), '남산타워 야경 촬영', '서울의 대표 야경 명소 남산타워를 배경으로 사진을 찍어보세요.', 'PHOTO', 'EASY', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), 'DDP(동대문디자인플라자) 건축 사진', '미래적 건축물 DDP에서 예술적 사진을 찍어보세요.', 'PHOTO', 'MEDIUM', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '서울숲 감성 사진 도전', '서울숲에서 자연과 어우러진 감성 사진을 촬영해보세요.', 'PHOTO', 'EASY', 50, 'SOLO', 1, 1, NOW()),
+(UUID(), '한강 일몰 타임랩스', '한강에서 멋진 일몰을 타임랩스로 담아보세요.', 'PHOTO', 'MEDIUM', 70, 'SOLO', 1, 1, NOW()),
+(UUID(), '익선동 골목 인생샷', '레트로한 분위기의 익선동 골목에서 사진을 남겨보세요.', 'PHOTO', 'EASY', 45, 'SOLO', 1, 1, NOW()),
+
+-- LOCAL_COMM
+(UUID(), '광장시장 음식 체험', '현지인들과 함께 광장시장에서 다양한 음식을 맛보세요.', 'LOCAL_COMM', 'EASY', 60, 'GROUP', 1, 1, NOW()),
+(UUID(), '서울 플리마켓 구경', '서울의 플리마켓에서 소상공인들과 소통해보세요.', 'LOCAL_COMM', 'EASY', 50, 'SOLO', 1, 1, NOW()),
+(UUID(), '전통시장 상인 인터뷰', '시장 상인과 대화하며 지역 경제와 삶을 이해해보세요.', 'LOCAL_COMM', 'MEDIUM', 75, 'SOLO', 1, 1, NOW()),
+(UUID(), '홍대 거리예술가 대화', '홍대 거리예술가와 직접 이야기 나누며 그들의 작품을 감상해보세요.', 'LOCAL_COMM', 'MEDIUM', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '서촌 마을 주민과 산책', '서촌 골목을 현지 주민과 함께 걸어보세요.', 'LOCAL_COMM', 'MEDIUM', 60, 'GROUP', 1, 1, NOW()),
+
+-- EXPERIENCE
+(UUID(), '전통 다도 체험', '한국의 전통 다도를 배우고 직접 체험해보세요.', 'EXPERIENCE', 'MEDIUM', 70, 'GROUP', 1, 1, NOW()),
+(UUID(), '서예 체험', '붓과 먹으로 한자 서예를 체험해보세요.', 'EXPERIENCE', 'MEDIUM', 80, 'SOLO', 1, 1, NOW()),
+(UUID(), '한식 만들기 체험', '전통 한식을 배우고 직접 요리해보세요.', 'EXPERIENCE', 'HARD', 90, 'GROUP', 1, 1, NOW()),
+(UUID(), '도자기 공방 체험', '도자기를 직접 빚고 유약을 입혀보는 체험입니다.', 'EXPERIENCE', 'MEDIUM', 90, 'GROUP', 1, 1, NOW()),
+(UUID(), '한강 수상 자전거 체험', '한강 위에서 수상 자전거를 타보며 새로운 경험을 즐겨보세요.', 'EXPERIENCE', 'EASY', 45, 'BOTH', 1, 1, NOW()),
+
+-- FOOD
+(UUID(), '마포 갈비골목 먹방', '서울의 전통 고기 맛집을 탐방해보세요.', 'FOOD', 'EASY', 50, 'GROUP', 1, 1, NOW()),
+(UUID(), '광장시장 빈대떡 먹기', '서울 전통시장 대표 메뉴 빈대떡을 먹어보세요.', 'FOOD', 'EASY', 30, 'SOLO', 1, 1, NOW()),
+(UUID(), '한식 디저트 체험', '전통 한식 디저트를 체험해보고 기록해보세요.', 'FOOD', 'MEDIUM', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '삼청동 브런치 맛집 탐방', '삼청동의 힙한 브런치 맛집을 찾아가보세요.', 'FOOD', 'EASY', 40, 'SOLO', 1, 1, NOW()),
+(UUID(), '전통주 시음 체험', '서울 전통주를 시음하고 비교해보세요.', 'FOOD', 'MEDIUM', 60, 'GROUP', 1, 1, NOW()),
+
+-- SIGHTSEEING
+(UUID(), '청계천 산책', '도심 속 청계천을 따라 산책하며 자연을 느껴보세요.', 'SIGHTSEEING', 'EASY', 45, 'SOLO', 1, 1, NOW()),
+(UUID(), '서울타워 케이블카 탑승', '케이블카를 타고 서울타워로 올라가 보세요.', 'SIGHTSEEING', 'EASY', 40, 'BOTH', 1, 1, NOW()),
+(UUID(), '북한산 등산 도전', '서울의 명산 북한산을 등반해보세요.', 'SIGHTSEEING', 'HARD', 120, 'SOLO', 1, 1, NOW()),
+(UUID(), '올림픽공원 조각공원 산책', '예술 작품이 가득한 올림픽공원 조각공원을 산책해보세요.', 'SIGHTSEEING', 'EASY', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '반포대교 분수쇼 관람', '밤에 펼쳐지는 분수쇼를 감상하며 힐링하세요.', 'SIGHTSEEING', 'EASY', 30, 'SOLO', 1, 1, NOW()),
+
+-- HEALING
+(UUID(), '서울숲 요가 챌린지', '자연 속에서 요가를 하며 몸과 마음을 힐링해보세요.', 'HEALING', 'MEDIUM', 60, 'GROUP', 1, 1, NOW()),
+(UUID(), '한강 명상 산책', '한강변을 따라 걷고 명상을 통해 마음을 가라앉혀보세요.', 'HEALING', 'EASY', 45, 'SOLO', 1, 1, NOW()),
+(UUID(), '북악스카이웨이 드라이브', '도심 속 드라이브 코스에서 힐링 타임을 즐겨보세요.', 'HEALING', 'EASY', 30, 'BOTH', 1, 1, NOW()),
+(UUID(), '서울도서관 힐링 독서', '고요한 공간에서 독서와 사색의 시간을 가져보세요.', 'HEALING', 'EASY', 60, 'SOLO', 1, 1, NOW()),
+(UUID(), '정릉천 자전거 라이딩', '조용한 하천길을 따라 자전거를 타며 힐링하세요.', 'HEALING', 'EASY', 50, 'SOLO', 1, 1, NOW());
+
+INSERT INTO quests (id, title, description, category, difficulty, avg_minutes, need_people, area_code, sigungu_code, created_at)
+VALUES
+-- CULTURE
+(UUID(), '제주 민속촌 탐방', '제주의 전통 가옥과 생활 문화를 체험할 수 있는 민속촌을 방문해보세요.', 'CULTURE', 'EASY', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '제주 전통 공예 체험', '제주의 전통 공예품을 직접 만들어보는 체험에 참여해보세요.', 'CULTURE', 'MEDIUM', 90, 'GROUP', 39, 1, NOW()),
+(UUID(), '제주 전통 의상 체험', '제주의 전통 의상을 입어보며 사진을 남겨보세요.', 'CULTURE', 'EASY', 45, 'BOTH', 39, 1, NOW()),
+(UUID(), '제주 전통 음악 감상', '제주의 전통 음악을 감상하며 지역 문화를 이해해보세요.', 'CULTURE', 'EASY', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '전통 다도 체험', '제주의 전통 다도 문화를 배워보세요.', 'CULTURE', 'MEDIUM', 70, 'GROUP', 39, 1, NOW()),
+
+-- HISTORY
+(UUID(), '제주 4·3 평화공원 방문', '제주 4·3 사건의 역사적 의미를 되새길 수 있는 평화공원을 방문해보세요.', 'HISTORY', 'MEDIUM', 80, 'SOLO', 39, 1, NOW()),
+(UUID(), '제주 국립박물관 탐방', '제주의 역사와 문화를 한눈에 볼 수 있는 국립박물관을 관람해보세요.', 'HISTORY', 'EASY', 70, 'SOLO', 39, 1, NOW()),
+(UUID(), '해녀 박물관 탐방', '제주의 해녀 문화와 역사를 배울 수 있는 해녀 박물관을 관람해보세요.', 'HISTORY', 'MEDIUM', 75, 'SOLO', 39, 1, NOW()),
+(UUID(), '돌문화공원 관람', '제주의 독특한 돌 문화를 체험할 수 있는 돌문화공원을 방문해보세요.', 'HISTORY', 'EASY', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '성산일출봉 역사 탐방', '성산일출봉의 역사와 지질학적 가치를 알아보세요.', 'HISTORY', 'MEDIUM', 90, 'BOTH', 39, 1, NOW()),
+
+-- PHOTO
+(UUID(), '섭지코지 일출 사진 찍기', '아름다운 섭지코지에서 일출을 촬영해보세요.', 'PHOTO', 'MEDIUM', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '한라산 풍경 사진 찍기', '한라산의 아름다운 풍경을 사진으로 담아보세요.', 'PHOTO', 'HARD', 90, 'SOLO', 39, 1, NOW()),
+(UUID(), '오름 타임랩스 도전', '제주의 오름에서 타임랩스 영상을 촬영해보세요.', 'PHOTO', 'MEDIUM', 80, 'SOLO', 39, 1, NOW()),
+(UUID(), '협재 해변 일몰 사진 촬영', '협재 해변에서 아름다운 일몰을 사진으로 남겨보세요.', 'PHOTO', 'EASY', 50, 'SOLO', 39, 1, NOW()),
+(UUID(), '전통 마을 배경 인생샷', '제주의 전통 마을에서 감성 사진을 찍어보세요.', 'PHOTO', 'EASY', 60, 'SOLO', 39, 1, NOW()),
+
+-- LOCAL_COMM
+(UUID(), '동문시장 투어', '제주의 전통 시장을 방문해 현지인과 소통해보세요.', 'LOCAL_COMM', 'EASY', 60, 'GROUP', 39, 1, NOW()),
+(UUID(), '해녀와의 인터뷰', '제주의 해녀들과 대화를 나누며 그들의 삶을 이해해보세요.', 'LOCAL_COMM', 'MEDIUM', 70, 'BOTH', 39, 1, NOW()),
+(UUID(), '제주 농촌 체험', '제주의 농촌에서 현지인과 함께 농사 체험을 해보세요.', 'LOCAL_COMM', 'MEDIUM', 90, 'GROUP', 39, 1, NOW()),
+(UUID(), '전통 놀이 배우기', '제주의 전통 놀이를 현지인들과 함께 즐겨보세요.', 'LOCAL_COMM', 'EASY', 60, 'GROUP', 39, 1, NOW()),
+(UUID(), '제주 방언 배우기', '제주 방언을 배우며 문화에 더 가까워져보세요.', 'LOCAL_COMM', 'MEDIUM', 75, 'BOTH', 39, 1, NOW()),
+
+-- EXPERIENCE
+(UUID(), '감귤 따기 체험', '제주의 감귤 농장에서 감귤을 직접 따보세요.', 'EXPERIENCE', 'EASY', 60, 'GROUP', 39, 1, NOW()),
+(UUID(), '해녀 체험', '제주의 해녀 문화를 직접 체험해보세요.', 'EXPERIENCE', 'HARD', 90, 'BOTH', 39, 1, NOW()),
+(UUID(), '조랑말 승마 체험', '제주 조랑말을 타고 승마 체험을 해보세요.', 'EXPERIENCE', 'MEDIUM', 45, 'BOTH', 39, 1, NOW()),
+(UUID(), '자연 염색 체험', '제주의 식물을 활용한 천연 염색 체험을 해보세요.', 'EXPERIENCE', 'MEDIUM', 70, 'GROUP', 39, 1, NOW()),
+(UUID(), '흑돼지 BBQ 체험', '제주 흑돼지를 직접 구워 먹는 체험을 해보세요.', 'EXPERIENCE', 'EASY', 60, 'BOTH', 39, 1, NOW()),
+
+-- FOOD
+(UUID(), '해녀의 집 방문', '직접 잡은 해산물로 만든 해녀 요리를 맛보세요.', 'FOOD', 'MEDIUM', 60, 'BOTH', 39, 1, NOW()),
+(UUID(), '고기국수 맛집 탐방', '제주 현지인이 추천하는 고기국수 맛집을 찾아가보세요.', 'FOOD', 'EASY', 30, 'SOLO', 39, 1, NOW()),
+(UUID(), '성게알 비빔밥 먹기', '바다 향 가득한 성게알 비빔밥을 맛보세요.', 'FOOD', 'MEDIUM', 45, 'SOLO', 39, 1, NOW()),
+(UUID(), '한라봉 디저트 카페', '한라봉을 활용한 디저트를 판매하는 카페를 방문해보세요.', 'FOOD', 'EASY', 40, 'SOLO', 39, 1, NOW()),
+(UUID(), '흑돼지 숯불구이 먹방', '현지 흑돼지 전문점에서 고기를 구워 먹어보세요.', 'FOOD', 'EASY', 60, 'GROUP', 39, 1, NOW()),
+
+-- SIGHTSEEING
+(UUID(), '성산일출봉 등반', '유네스코 지정 성산일출봉을 오르며 제주의 절경을 감상해보세요.', 'SIGHTSEEING', 'MEDIUM', 90, 'BOTH', 39, 1, NOW()),
+(UUID(), '우도 자전거 투어', '작은 섬 우도를 자전거로 한 바퀴 돌아보세요.', 'SIGHTSEEING', 'EASY', 70, 'SOLO', 39, 1, NOW()),
+(UUID(), '만장굴 탐험', '용암 동굴인 만장굴을 직접 걸으며 지질의 신비를 느껴보세요.', 'SIGHTSEEING', 'MEDIUM', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '천지연 폭포 감상', '웅장한 천지연 폭포에서 자연의 소리를 느껴보세요.', 'SIGHTSEEING', 'EASY', 40, 'SOLO', 39, 1, NOW()),
+(UUID(), '한라수목원 산책', '한라수목원에서 제주 자생 식물을 감상하며 힐링하세요.', 'SIGHTSEEING', 'EASY', 50, 'SOLO', 39, 1, NOW()),
+
+-- HEALING
+(UUID(), '비자림 산책', '비자나무 숲길에서 힐링 산책을 즐겨보세요.', 'HEALING', 'EASY', 60, 'SOLO', 39, 1, NOW()),
+(UUID(), '용머리해안 걷기', '해안 절벽을 따라 걷는 힐링 코스를 체험해보세요.', 'HEALING', 'EASY', 50, 'SOLO', 39, 1, NOW()),
+(UUID(), '제주 바다 명상', '제주의 푸른 바다를 바라보며 명상을 해보세요.', 'HEALING', 'EASY', 40, 'SOLO', 39, 1, NOW()),
+(UUID(), '곶자왈 숲 트레킹', '제주의 곶자왈 원시림을 걸으며 자연과 교감해보세요.', 'HEALING', 'MEDIUM', 80, 'SOLO', 39, 1, NOW()),
+(UUID(), '온천 스파 체험', '제주의 온천 스파에서 피로를 풀어보세요.', 'HEALING', 'EASY', 70, 'BOTH', 39, 1, NOW());
+
 DELETE FROM quests
 WHERE id NOT IN (
     SELECT id FROM (
