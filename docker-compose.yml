@@ -2,30 +2,21 @@ version: "3.8"
 
 services:
   zookeeper:
-    image: confluentinc/cp-zookeeper:latest
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+    image: wurstmeister/zookeeper:latest
     ports:
       - "2181:2181"
-    networks:
-      - taptalk-network
 
   kafka:
-    image: confluentinc/cp-kafka:latest
-    depends_on:
-      - zookeeper
+    image: wurstmeister/kafka:latest
     ports:
       - "9092:9092"
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    networks:
-      - taptalk-network
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+    depends_on:
+      - zookeeper
 
   eureka-server:
     build:
@@ -122,7 +113,7 @@ services:
       - kafka
       - firebase-admin
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       FIREBASE_CREDENTIALS_PATH: /app/firebase-credentials.json
     volumes:
       - ./firebase-credentials.json:/app/firebase-credentials.json
@@ -138,7 +129,7 @@ services:
       - kafka
       - firebase-admin
     environment:
-      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       FIREBASE_CREDENTIALS_PATH: /app/firebase-credentials.json
     volumes:
       - ./firebase-credentials.json:/app/firebase-credentials.json
@@ -146,25 +137,26 @@ services:
       - taptalk-network
 
   firebase-admin:
-    image: firebase/firebase-admin
-    volumes:
-      - ./firebase-credentials.json:/app/firebase-credentials.json
-    networks:
-      - taptalk-network
+    build: ./firebase-admin
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - EUREKA_SERVER_URL=http://211.187.162.65:8761/eureka/
+    depends_on:
+      - db
+      - kafka
 
   db:
     image: mariadb:latest
     container_name: taptalk-db
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: map_platform
-      MYSQL_USER: map_user
-      MYSQL_PASSWORD: map_password
-      MYSQL_MULTIPLE_DATABASES: map_platform,userdb
-      TZ: Asia/Seoul
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
     volumes:
-      - ./db-init:/docker-entrypoint-initdb.d
-      - mariadb-data:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
@@ -197,4 +189,4 @@ networks:
     driver: bridge
 
 volumes:
-  mariadb-data:
+  mariadb_data:
