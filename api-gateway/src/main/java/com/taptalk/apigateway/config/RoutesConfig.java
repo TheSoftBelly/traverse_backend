@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class RoutesConfig {
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
+    public RouteLocator customEurekaRouteLocator(RouteLocatorBuilder builder) {
         return builder.routes()
                 // Firebase는 클라이언트에서 직접 연결합니다.
                 // 필요한 경우에만 백엔드 서비스로 라우팅합니다.
