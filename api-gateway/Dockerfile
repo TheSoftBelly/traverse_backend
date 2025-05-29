@@ -11,12 +11,12 @@ RUN apt-get update && \
     ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle && \
     rm gradle-8.5-bin.zip
 
-# Gradle Wrapper 생성
-RUN gradle wrapper --gradle-version 8.5
-
-# Gradle 캐시를 위한 레이어 분리
+# Gradle 프로젝트 파일 복사
 COPY build.gradle .
 COPY settings.gradle .
+
+# Gradle Wrapper 생성
+RUN gradle wrapper --gradle-version 8.5 --distribution-type bin
 
 # Gradle 의존성 다운로드 (캐시 레이어)
 RUN chmod +x ./gradlew
