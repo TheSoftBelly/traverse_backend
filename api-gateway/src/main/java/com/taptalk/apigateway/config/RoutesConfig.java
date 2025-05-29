@@ -18,12 +18,28 @@ public class RoutesConfig {
                 .route("eureka-web-route", r -> r
                         .path("/eureka/web")
                         .filters(f -> f.setPath("/"))
-                        .uri("http://localhost:8761"))
+                        .uri("http://211.187.162.65:8761"))
                 
                 // Eureka 정적 리소스 라우트
                 .route("eureka-static-route", r -> r
                         .path("/eureka/**")
-                        .uri("http://localhost:8761"))
+                        .uri("http://211.187.162.65:8761"))
+                
+                // aiMap 서비스 라우트
+                .route("ai-map-route", r -> r
+                        .path("/api/ai-map/**")
+                        .filters(f -> f
+                                .stripPrefix(2)
+                                .addRequestHeader("X-Request-From", "Gateway"))
+                        .uri("lb://ai-map"))
+                
+                // user-auth 서비스 라우트
+                .route("user-auth-route", r -> r
+                        .path("/api/user-auth/**")
+                        .filters(f -> f
+                                .stripPrefix(2)
+                                .addRequestHeader("X-Request-From", "Gateway"))
+                        .uri("lb://user-auth"))
 
                 .build();
     }
