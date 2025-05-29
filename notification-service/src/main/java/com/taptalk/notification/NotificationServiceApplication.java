@@ -32,3 +32,4 @@ public class NotificationServiceApplication {
 		return FirebaseApp.initializeApp(options);
 	}
 }
+ 
