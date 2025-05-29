@@ -23,7 +23,7 @@ services:
       context: ./eureka
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -40,7 +40,7 @@ services:
       context: ./api-gateway
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -58,7 +58,7 @@ services:
       context: ./aiMap
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: ai-map
     ports:
       - "8081:8081"
@@ -82,7 +82,7 @@ services:
       context: ./admin_gradle/user-auth
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: user-auth
     ports:
       - "8082:8082"
@@ -115,7 +115,7 @@ services:
       context: ./message-service
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     ports:
       - "8083:8083"
     depends_on:
@@ -134,7 +134,7 @@ services:
       context: ./notification-service
       dockerfile: Dockerfile
       args:
-        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     ports:
       - "8084:8084"
     depends_on:
