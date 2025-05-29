@@ -227,5 +227,5 @@ networks:
     driver: bridge
 
 volumes:
-  mariadb_data:
+  mariadb-data:
   kafka_data:
