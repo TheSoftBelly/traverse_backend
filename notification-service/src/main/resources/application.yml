@@ -21,5 +21,8 @@ eureka:
 
 logging:
   level:
+    root: INFO
     com.taptalk.notification: DEBUG
-    org.springframework.kafka: INFO
+    org.springframework.kafka: DEBUG
+    org.springframework.cloud: DEBUG
+    com.netflix.eureka: DEBUG

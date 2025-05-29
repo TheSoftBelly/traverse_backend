@@ -22,6 +22,8 @@ services:
     build:
       context: ./eureka
       dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     container_name: eureka-server
     ports:
       - "8761:8761"
@@ -37,6 +39,8 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -53,6 +57,8 @@ services:
     build:
       context: ./aiMap
       dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     container_name: ai-map
     ports:
       - "8081:8081"
@@ -75,6 +81,8 @@ services:
     build:
       context: ./admin_gradle/user-auth
       dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     container_name: user-auth
     ports:
       - "8082:8082"
@@ -103,7 +111,11 @@ services:
     restart: unless-stopped
 
   message-service:
-    build: ./message-service
+    build:
+      context: ./message-service
+      dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     ports:
       - "8083:8083"
     depends_on:
@@ -118,7 +130,11 @@ services:
       - taptalk-network
 
   notification-service:
-    build: ./notification-service
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+      args:
+        - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4
     ports:
       - "8084:8084"
     depends_on:
@@ -136,10 +152,10 @@ services:
     image: mariadb:latest
     container_name: taptalk-db
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: map_platform
+      MYSQL_USER: map_user
+      MYSQL_PASSWORD: map_password
     volumes:
       - mariadb_data:/var/lib/mysql
     ports:
