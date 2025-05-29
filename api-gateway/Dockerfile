@@ -2,9 +2,13 @@ FROM eclipse-temurin:17-jdk as build
 
 WORKDIR /app
 
+# Gradle Wrapper 파일 복사
+COPY gradlew .
+COPY gradle/wrapper/gradle-wrapper.jar gradle/wrapper/
+COPY gradle/wrapper/gradle-wrapper.properties gradle/wrapper/
+
 # Gradle 캐시를 위한 레이어 분리
 COPY gradle gradle
-COPY gradlew .
 COPY build.gradle .
 COPY settings.gradle .
 
