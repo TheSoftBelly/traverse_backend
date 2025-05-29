@@ -1,22 +1,6 @@
 version: "3.8"
 
 services:
-  zookeeper:
-    image: bitnami/zookeeper:latest
-    platform: linux/arm64/v8
-    container_name: zookeeper
-    ports:
-      - "2181:2181"
-    environment:
-      - ALLOW_ANONYMOUS_LOGIN=yes
-    networks:
-      - taptalk-network
-    healthcheck:
-      test: ["CMD-SHELL", "echo srvr | nc localhost 2181 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   kafka:
     image: bitnami/kafka:latest
     platform: linux/arm64/v8
