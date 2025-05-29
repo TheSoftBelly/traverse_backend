@@ -7,33 +7,6 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
-      routes:
-        # 다른 마이크로서비스로 연결되는 라우트 정의
-        # Firebase는 클라이언트에서 직접 연결됩니다.
-
-        # Eureka 서버 라우트
-        - id: eureka-server
-          uri: http://eureka-server:8761
-          predicates:
-            - Path=/eureka/**
-        - id: ai-map-health
-          uri: lb://ai-map
-          predicates:
-            - Path=/api/ai-map/api/v1/health
-          filters:
-            - StripPrefix=2
-        - id: ai-map
-          uri: lb://ai-map
-          predicates:
-            - Path=/api/ai-map/**
-          filters:
-            - StripPrefix=2
-        - id: user-auth
-          uri: lb://user-auth
-          predicates:
-            - Path=/api/user-auth/**
-          filters:
-            - StripPrefix=2
     config:
       enabled: false
   config:
@@ -47,10 +20,13 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://eureka-server:8761/eureka/
+      defaultZone: http://211.187.162.65:8761/eureka/
   instance:
     preferIpAddress: true
     instanceId: ${spring.application.name}:${server.port}
+    leaseRenewalIntervalInSeconds: 30
+    leaseExpirationDurationInSeconds: 90
+    hostname: 211.187.162.65
 
 logging:
   level:
@@ -58,6 +34,7 @@ logging:
     org.springframework.cloud.gateway: DEBUG
     org.springframework.cloud.gateway.route.RouteDefinitionLocator: INFO
     org.springframework.cloud.netflix.eureka: DEBUG
+    org.springframework.web: DEBUG
 
 management:
   endpoints:
