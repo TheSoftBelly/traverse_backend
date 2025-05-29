@@ -2,13 +2,19 @@
 FROM eclipse-temurin:17-jdk as build
 WORKDIR /app
 
-# Gradle Wrapper 파일 복사
-COPY gradlew .
-COPY gradle/wrapper/gradle-wrapper.jar gradle/wrapper/
-COPY gradle/wrapper/gradle-wrapper.properties gradle/wrapper/
+# Gradle 설치
+RUN apt-get update && \
+    apt-get install -y curl unzip && \
+    curl -O https://downloads.gradle.org/distributions/gradle-8.5-bin.zip && \
+    unzip gradle-8.5-bin.zip && \
+    mv gradle-8.5 /opt/gradle && \
+    ln -s /opt/gradle/bin/gradle /usr/local/bin/gradle && \
+    rm gradle-8.5-bin.zip
+
+# Gradle Wrapper 생성
+RUN gradle wrapper --gradle-version 8.5
 
 # Gradle 캐시를 위한 레이어 분리
-COPY gradle gradle
 COPY build.gradle .
 COPY settings.gradle .
 
