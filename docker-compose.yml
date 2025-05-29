@@ -198,7 +198,7 @@ services:
     restart: unless-stopped
 
   db:
-    image: mariadb:latest
+    image: mariadb:11.2.2
     container_name: taptalk-db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
