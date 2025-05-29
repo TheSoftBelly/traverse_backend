@@ -198,47 +198,29 @@ services:
     restart: unless-stopped
 
   db:
-    image: mariadb:11.2.2
+    image: mariadb:latest
     container_name: taptalk-db
     environment:
       MYSQL_ROOT_PASSWORD: root_password
       MYSQL_DATABASE: map_platform
       MYSQL_USER: map_user
       MYSQL_PASSWORD: map_password
+      MYSQL_MULTIPLE_DATABASES: map_platform,userdb
+      TZ: Asia/Seoul
     volumes:
-      - mariadb_data:/var/lib/mysql
-      - ./init-scripts:/docker-entrypoint-initdb.d
+      - ./db-init:/docker-entrypoint-initdb.d
+      - mariadb-data:/var/lib/mysql
     ports:
       - "3306:3306"
     networks:
       - taptalk-network
     restart: unless-stopped
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "-h",
-          "localhost",
-          "-u",
-          "root",
-          "-p$$MYSQL_ROOT_PASSWORD",
-          "--silent",
-        ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
     command: >
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci 
       --innodb_use_native_aio=0 
       --skip-name-resolve
       --default-authentication-plugin=mysql_native_password
-      --max_allowed_packet=128M
-      --wait_timeout=28800
-      --interactive_timeout=28800
 
 networks:
   taptalk-network:
