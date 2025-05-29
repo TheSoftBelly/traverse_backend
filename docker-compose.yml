@@ -37,7 +37,6 @@ services:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
-
     container_name: api-gateway
     ports:
       - "8080:8080"
@@ -76,7 +75,6 @@ services:
     build:
       context: ./admin_gradle/user-auth
       dockerfile: Dockerfile
-
     container_name: user-auth
     ports:
       - "8082:8082"
@@ -111,7 +109,6 @@ services:
     depends_on:
       - eureka-server
       - kafka
-      - firebase-admin
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       FIREBASE_CREDENTIALS_PATH: /app/firebase-credentials.json
@@ -127,7 +124,6 @@ services:
     depends_on:
       - eureka-server
       - kafka
-      - firebase-admin
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       FIREBASE_CREDENTIALS_PATH: /app/firebase-credentials.json
@@ -135,17 +131,6 @@ services:
       - ./firebase-credentials.json:/app/firebase-credentials.json
     networks:
       - taptalk-network
-
-  firebase-admin:
-    build: ./firebase-admin
-    ports:
-      - "8085:8085"
-    environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - EUREKA_SERVER_URL=http://211.187.162.65:8761/eureka/
-    depends_on:
-      - db
-      - kafka
 
   db:
     image: mariadb:latest
