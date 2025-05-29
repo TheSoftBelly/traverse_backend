@@ -14,11 +14,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  mail:
-    host: 211.187.162.65
-    port: 1025
-    username: test
-    password: test
 
 eureka:
   client:

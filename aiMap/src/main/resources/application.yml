@@ -2,14 +2,19 @@ spring:
   application:
     name: ai-map
   datasource:
-    url: jdbc:mariadb://db:3306/questdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mariadb://db:3306/map_platform?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: map_user
     password: map_password
     driver-class-name: org.mariadb.jdbc.Driver
+    hikari:
+      connection-timeout: 20000
+      maximum-pool-size: 5
+      minimum-idle: 1
+      validation-timeout: 5000
   jpa:
     database-platform: org.hibernate.dialect.MariaDBDialect
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -35,13 +40,12 @@ eureka:
     registerWithEureka: true
     fetchRegistry: true
     serviceUrl:
-      defaultZone: http://211.187.162.65:8761/eureka/
+      defaultZone: http://eureka-server:8761/eureka/
   instance:
     preferIpAddress: true
     instanceId: ${spring.application.name}:${server.port}
     leaseRenewalIntervalInSeconds: 30
     leaseExpirationDurationInSeconds: 90
-    hostname: 211.187.162.65
 
 server:
   port: 8081
