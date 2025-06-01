@@ -33,24 +33,35 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.18.2'
-    implementation 'com.google.firebase:firebase-admin:9.2.0'
-    implementation 'com.google.protobuf:protobuf-java:3.24.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.3'
-    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.17.3'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     
-    // Eureka Client 의존성 추가
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    // Apache Commons
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
     
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    // JWT
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+    
+    // Firebase
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+    implementation 'com.google.protobuf:protobuf-java:3.24.0'
+    
+    // Eureka Client
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    
+    // MariaDB Driver ONLY
+    implementation 'org.mariadb.jdbc:mariadb-java-client'
+    
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    
+    // Development
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    
+    // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.junit.jupiter:junit-jupiter'

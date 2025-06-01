@@ -27,4 +27,4 @@ COPY --from=build /app/build/libs/*.jar /app/app.jar
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
 # 포트 노출
-EXPOSE 8082
+EXPOSE 8081

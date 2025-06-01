@@ -86,7 +86,7 @@ services:
         - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: ai-map
     ports:
-      - "8081:8081"
+      - "8082:8082"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/map_platform
       - SPRING_DATASOURCE_USERNAME=map_user
@@ -110,13 +110,13 @@ services:
         - GRADLE_OPTS=-Dorg.gradle.daemon=false -Dorg.gradle.parallel=true -Dorg.gradle.workers.max=4 -Dorg.gradle.caching=true -Dorg.gradle.configureondemand=true
     container_name: user-auth
     ports:
-      - "8082:8082"
+      - "8081:8081"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/userdb?allowPublicKeyRetrieval=true&useSSL=false
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root_password
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MariaDBDialect
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
       - SPRING_APPLICATION_NAME=user-auth
       - EUREKA_INSTANCE_PREFER_IP_ADDRESS=true
@@ -125,7 +125,11 @@ services:
       - EUREKA_CLIENT_FETCH_REGISTRY=true
       - EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS=10
       - EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS=30
-      - SERVER_PORT=8082
+      - SERVER_PORT=8081
+      - FIREBASE_CREDENTIALS_PATH=/app/firebase-credentials.json
+    volumes:
+      - ./firebase-credentials.json:/app/firebase-credentials.json
+      - ./tabtalk-c3dc3-firebase-adminsdk-fbsvc-25c323ffdc.json:/app/tabtalk-c3dc3-firebase-adminsdk-fbsvc-25c323ffdc.json
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -199,6 +203,12 @@ services:
     networks:
       - taptalk-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "root", "-proot_password"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
     command: >
       --character-set-server=utf8mb4 
       --collation-server=utf8mb4_unicode_ci 
