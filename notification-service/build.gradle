@@ -29,6 +29,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 	implementation 'org.springframework.kafka:spring-kafka'
+	
+	// Firebase Admin SDK - 서버 사이드에서 사용
 	implementation 'com.google.firebase:firebase-admin:9.2.0'
 	
 	compileOnly 'org.projectlombok:lombok'
