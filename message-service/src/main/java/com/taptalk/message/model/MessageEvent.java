@@ -8,6 +8,7 @@ public class MessageEvent {
     String messageId;
     String senderId;
     String receiverId;
+    String receiverFcmToken;
     String content;
     LocalDateTime timestamp;
     boolean isRead;

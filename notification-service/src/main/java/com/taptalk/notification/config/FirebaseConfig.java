@@ -3,10 +3,7 @@ package com.taptalk.notification.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.cloud.firestore.Firestore;
-import com.google.firebase.cloud.FirestoreClient;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +11,7 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List; // FirebaseApp.getApps() 사용을 위해 추가
+import java.util.List;
 
 @Configuration
 public class FirebaseConfig {
@@ -60,20 +57,6 @@ public class FirebaseConfig {
     }
 
     @Bean
-    public FirebaseAuth firebaseAuth(FirebaseApp firebaseApp) {
-        System.out.println("FirebaseConfig: firebaseAuth() 메소드 호출됨");
-        try {
-            FirebaseAuth auth = FirebaseAuth.getInstance(firebaseApp);
-            System.out.println("FirebaseConfig: FirebaseAuth 인스턴스 생성 성공");
-            return auth;
-        } catch (Exception e) {
-            System.err.println("FirebaseConfig: FirebaseAuth 생성 중 오류 발생");
-            e.printStackTrace();
-            throw new RuntimeException("FirebaseAuth 생성 실패", e);
-        }
-    }
-
-    @Bean
     public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
         System.out.println("FirebaseConfig: firebaseMessaging() 메소드 호출됨");
         try {
@@ -84,20 +67,6 @@ public class FirebaseConfig {
             System.err.println("FirebaseConfig: FirebaseMessaging 생성 중 오류 발생");
             e.printStackTrace();
             throw new RuntimeException("FirebaseMessaging 생성 실패", e);
-        }
-    }
-
-    @Bean
-    public Firestore firestore(FirebaseApp firebaseApp) {
-        System.out.println("FirebaseConfig: firestore() 메소드 호출됨");
-        try {
-            Firestore firestore = FirestoreClient.getFirestore(firebaseApp);
-            System.out.println("FirebaseConfig: Firestore 인스턴스 생성 성공");
-            return firestore;
-        } catch (Exception e) {
-            System.err.println("FirebaseConfig: Firestore 생성 중 오류 발생");
-            e.printStackTrace();
-            throw new RuntimeException("Firestore 생성 실패", e);
         }
     }
 } 
