@@ -65,7 +65,7 @@ public class SecurityConfig {
                                 "/api/hashtags","/api/hashtags/{hashtag_id}","/api/hashtags/wordcloud",
                                 "/api/users/statistics", "/api/posts/statistics", "/api/hashtags/{hashtag_id}/status",
                                 "/api/hashtags/statistics","/api/admins/{admin_id}/role", "/api/auth/generate-token",
-                                "/api/auth/admins/","/api/users/statistics","/api/admins/inquiries").permitAll()
+                                "/api/auth/admins/","/api/users/statistics","/api/admins/inquiries","/api/chats/rooms/{roomId}").permitAll()
                         .anyRequest().authenticated()
                 );
 
@@ -80,7 +80,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://211.187.162.65:3000", "http://localhost:3000")); // 프론트엔드 주소
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // 인증 정보 포함 허용
 

@@ -3,8 +3,8 @@ package com.example.userauth.repository;
 import com.example.userauth.model.Post;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import java.util.stream.Collectors;  // 꼭 import 추가!
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,24 +82,22 @@ public class PostRepository {
     }
 
     private List<Post.Comment> findCommentsByPostId(String postId) throws ExecutionException, InterruptedException {
-        // 댓글을 가져오는 로직 추가 (Firestore에서 댓글 데이터를 가져옵니다.)
         CollectionReference commentsRef = firestore.collection("posts").document(postId).collection("comments");
         ApiFuture<QuerySnapshot> future = commentsRef.get();
         QuerySnapshot querySnapshot = future.get();
 
         return querySnapshot.getDocuments().stream()
                 .map(doc -> doc.toObject(Post.Comment.class))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private List<Post.Report> findReportsByPostId(String postId) throws ExecutionException, InterruptedException {
-        // 신고를 가져오는 로직 추가 (Firestore에서 신고 데이터를 가져옵니다.)
         CollectionReference reportsRef = firestore.collection("posts").document(postId).collection("reports");
         ApiFuture<QuerySnapshot> future = reportsRef.get();
         QuerySnapshot querySnapshot = future.get();
 
         return querySnapshot.getDocuments().stream()
                 .map(doc -> doc.toObject(Post.Report.class))
-                .toList();
+                .collect(Collectors.toList());
     }
 }

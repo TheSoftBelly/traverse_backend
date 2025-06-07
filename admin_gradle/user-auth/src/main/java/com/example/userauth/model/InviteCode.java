@@ -11,8 +11,7 @@ public class InviteCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    //private String email;
+    private String email;
     private String role;
     private String code;
     private LocalDateTime expiresAt;
@@ -26,13 +25,13 @@ public class InviteCode {
         this.id = id;
     }
 
-    //public String getEmail() {
-    //    return email;
-    //}
+    public String getEmail() {
+        return email;
+    }
 
-    //public void setEmail(String email) {
-    //    this.email = email;
-    //}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public String getRole() {
         return role;

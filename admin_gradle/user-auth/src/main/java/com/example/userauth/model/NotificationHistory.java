@@ -1,83 +1,59 @@
 package com.example.userauth.model;
 
 import com.google.cloud.Timestamp;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Entity
+@Table(name = "notification_history")
 public class NotificationHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-    private String template_id;
-    private String template_name;
+
+    @Column(name = "template_id")
+    private String templateId;
+
+    @Column(name = "template_name")
+    private String templateName;
+
     private String type;
-    private Timestamp sent_at;
-    private int recipient_count;
-    private int read_count;
-    private String sent_by;
 
-    public String getId() {
-        return id;
-    }
+    @Column(name = "sent_at")
+    private Timestamp sentAt;
 
-    public void setId(String id) {
-        this.id = id;
-    }
+    @Column(name = "recipient_count")
+    private int recipientCount;
 
-    public String getTemplate_id() {
-        return template_id;
-    }
+    @Column(name = "read_count")
+    private int readCount;
 
-    public void setTemplate_id(String template_id) {
-        this.template_id = template_id;
-    }
+    @Column(name = "sent_by")
+    private String sentBy;
 
-    public String getTemplate_name() {
-        return template_name;
-    }
+    // Getters and Setters
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    public void setTemplate_name(String template_name) {
-        this.template_name = template_name;
-    }
+    public String getTemplateId() { return templateId; }
+    public void setTemplateId(String templateId) { this.templateId = templateId; }
 
-    public String getType() {
-        return type;
-    }
+    public String getTemplateName() { return templateName; }
+    public void setTemplateName(String templateName) { this.templateName = templateName; }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
 
-    public Timestamp getSent_at() {
-        return sent_at;
-    }
+    public Timestamp  getSentAt() { return sentAt; }
+    public void setSentAt(Timestamp  sentAt) { this.sentAt = sentAt; }
 
-    public void setSent_at(Timestamp sent_at) {
-        this.sent_at = sent_at;
-    }
+    public int getRecipientCount() { return recipientCount; }
+    public void setRecipientCount(int recipientCount) { this.recipientCount = recipientCount; }
 
-    public int getRecipient_count() {
-        return recipient_count;
-    }
+    public int getReadCount() { return readCount; }
+    public void setReadCount(int readCount) { this.readCount = readCount; }
 
-    public void setRecipient_count(int recipient_count) {
-        this.recipient_count = recipient_count;
-    }
-
-    public int getRead_count() {
-        return read_count;
-    }
-
-    public void setRead_count(int read_count) {
-        this.read_count = read_count;
-    }
-
-    public String getSent_by() {
-        return sent_by;
-    }
-
-    public void setSent_by(String sent_by) {
-        this.sent_by = sent_by;
-    }
+    public String getSentBy() { return sentBy; }
+    public void setSentBy(String sentBy) { this.sentBy = sentBy; }
 }
-

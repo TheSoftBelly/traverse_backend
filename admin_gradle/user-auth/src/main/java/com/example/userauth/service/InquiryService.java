@@ -1,15 +1,16 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.InquiryReplyDTO;
-import com.example.userauth.dto.InquiryStatusUpdateDTO;
-import com.example.userauth.model.Inquiry;
+import com.example.userauth.dto.request.InquiryReplyDTO;
+import com.example.userauth.dto.request.InquiryStatusUpdateDTO;
 import com.example.userauth.repository.InquiryRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 @Service

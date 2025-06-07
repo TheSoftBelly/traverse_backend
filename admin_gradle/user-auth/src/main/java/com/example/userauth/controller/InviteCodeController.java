@@ -1,7 +1,7 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.InviteCodeValidationRequest;
-import com.example.userauth.dto.InviteCodeValidationResponse;
+import com.example.userauth.dto.request.InviteCodeValidationRequest;
+import com.example.userauth.dto.response.InviteCodeValidationResponse;
 import com.example.userauth.model.InviteCode;
 import com.example.userauth.service.InviteCodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ public class InviteCodeController {
     public ResponseEntity<?> generateInviteCode(@RequestBody Map<String, String> request) {
         String email = request.get("email");
         String role = request.get("role");
+        System.out.println("받은 역할: " + role);
 
         InviteCode inviteCode = inviteCodeService.generateInviteCode(email, role);
 

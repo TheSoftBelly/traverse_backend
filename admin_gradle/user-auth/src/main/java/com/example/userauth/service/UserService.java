@@ -1,22 +1,14 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.UserListResponse;
-import com.example.userauth.model.Report;
+import com.example.userauth.dto.response.UserListResponse;
 import com.example.userauth.model.User;
-import com.example.userauth.repository.UserRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -35,42 +27,113 @@ public class UserService {
 
         try {
             CollectionReference usersRef = db.collection("users");
-            Query query = usersRef;
 
-            // 검색 기능 적용 (이름 또는 이메일에 검색어 포함)
-            if (search != null && !search.isEmpty()) {
-                query = query.whereGreaterThanOrEqualTo("user_name", search)
-                        .whereLessThanOrEqualTo("user_name", search + "\uf8ff");
+            List<User> filteredUsers = new ArrayList<>();
+
+            if (status == null || status.equalsIgnoreCase("all")) {
+                // 상태 필터 없음 -> 전체 조회
+                Query query = usersRef;
+                if (search != null && !search.isEmpty()) {
+                    query = query.whereGreaterThanOrEqualTo("user_name", search)
+                            .whereLessThanOrEqualTo("user_name", search + "\uf8ff");
+                }
+                query = query.orderBy(sortBy, sortOrder.equalsIgnoreCase("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
+                        .limit(limit);
+
+                ApiFuture<QuerySnapshot> future = query.get();
+                QuerySnapshot querySnapshot = future.get();
+                totalCount = (int) usersRef.get().get().getDocuments().size(); // 전체 카운트 (필터 무시)
+                totalPages = (int) Math.ceil((double) totalCount / limit);
+
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    try {
+                        filteredUsers.add(convertToUser(doc));
+                    } catch (InterruptedException | ExecutionException e) {
+                        System.err.println("사용자 변환 중 오류 (status=all): " + e.getMessage());
+                    }
+                }
+
+            } else if (status.equalsIgnoreCase("Active")) {
+                // Active: status 필드가 없는 경우 (Firestore는 이 조건 쿼리 불가해서 전체 조회 후 자바 필터)
+                ApiFuture<QuerySnapshot> future = usersRef.get();
+                QuerySnapshot querySnapshot = future.get();
+
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    if (!doc.contains("status") || doc.getString("status") == null) {
+                        if (search != null && !search.isEmpty()) {
+                            String userName = doc.getString("user_name");
+                            if (userName == null || !userName.toLowerCase().contains(search.toLowerCase())) continue;
+                        }
+                        try {
+                            filteredUsers.add(convertToUser(doc));
+                        } catch (InterruptedException | ExecutionException e) {
+                            System.err.println("사용자 변환 중 오류 (status=active): " + e.getMessage());
+                        }
+                    }
+                }
+
+                totalCount = filteredUsers.size();
+                totalPages = (int) Math.ceil((double) totalCount / limit);
+                // 페이지네이션 적용 (자바단에서)
+                int fromIndex = Math.min((page - 1) * limit, filteredUsers.size());
+                int toIndex = Math.min(fromIndex + limit, filteredUsers.size());
+                filteredUsers = filteredUsers.subList(fromIndex, toIndex);
+
+            } else if (status.equalsIgnoreCase("Suspended")) {
+                // Suspended: action_taken == "suspend"
+                Query query = usersRef.whereEqualTo("action_taken", "suspend");
+                if (search != null && !search.isEmpty()) {
+                    query = query.whereGreaterThanOrEqualTo("user_name", search)
+                            .whereLessThanOrEqualTo("user_name", search + "\uf8ff");
+                }
+                query = query.orderBy(sortBy, sortOrder.equalsIgnoreCase("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
+                        .limit(limit);
+
+                ApiFuture<QuerySnapshot> future = query.get();
+                QuerySnapshot querySnapshot = future.get();
+                totalCount = querySnapshot.size();
+                totalPages = (int) Math.ceil((double) totalCount / limit);
+
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    try {
+                        filteredUsers.add(convertToUser(doc));
+                    } catch (InterruptedException | ExecutionException e) {
+                        System.err.println("사용자 변환 중 오류 (status=suspended): " + e.getMessage());
+                    }
+                }
+
+
+            } else {
+                // 그 외 상태들: status 필드가 특정 값인 경우 (예: deleted, archived 등)
+                Query query = usersRef.whereEqualTo("status", status.toLowerCase());
+                if (search != null && !search.isEmpty()) {
+                    query = query.whereGreaterThanOrEqualTo("user_name", search)
+                            .whereLessThanOrEqualTo("user_name", search + "\uf8ff");
+                }
+                query = query.orderBy(sortBy, sortOrder.equalsIgnoreCase("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
+                        .limit(limit);
+
+                ApiFuture<QuerySnapshot> future = query.get();
+                QuerySnapshot querySnapshot = future.get();
+                totalCount = querySnapshot.size();
+                totalPages = (int) Math.ceil((double) totalCount / limit);
+
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    try {
+                        filteredUsers.add(convertToUser(doc));
+                    } catch (InterruptedException | ExecutionException e) {
+                        System.err.println("사용자 변환 중 오류 (기타 status): " + e.getMessage());
+                    }
+                }
+
             }
 
-            // 상태 필터링 적용
-            if (status != null && !status.equals("all")) {
-                query = query.whereEqualTo("status", status);
-            }
-
-            // 정렬 적용
-            query = query.orderBy(sortBy, sortOrder.equals("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
-                    .limit(limit);
-
-            ApiFuture<QuerySnapshot> future = query.get();
-            QuerySnapshot querySnapshot = future.get();
-
-            // 총 사용자 수 계산
-            totalCount = querySnapshot.size();
-
-            // 페이지 계산
-            totalPages = (int) Math.ceil((double) totalCount / limit);
-
-            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                users.add(convertToUser(document));
-            }
+            users = filteredUsers;
 
         } catch (InterruptedException | ExecutionException e) {
             System.err.println("사용자 목록 가져오기 오류: " + e.getMessage());
         }
 
-        // API 응답 형태로 반환
-        // UserListResponse 객체를 생성하여 응답 반환
         UserListResponse response = new UserListResponse();
         response.setSuccess(true);
         response.setUsers(users);
@@ -81,6 +144,7 @@ public class UserService {
         return response;
     }
 
+
     private String formatTimestampToISO(Timestamp timestamp) {
         if (timestamp == null) return null;
         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
@@ -90,25 +154,38 @@ public class UserService {
 
 
     // Firestore 문서를 User 객체로 변환
-    private User convertToUser(DocumentSnapshot document) {
+    private User convertToUser(DocumentSnapshot document) throws InterruptedException, ExecutionException {
         User user = new User();
-        user.setUser_id(document.getId());
+        String userId = document.getId();
+
+        user.setUser_id(userId);
         user.setUser_name(document.getString("user_name"));
         user.setEmail(document.getString("email"));
         user.setVerify((List<String>) document.get("verify"));
-        user.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 수정됨
-        user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));  // 수정됨
-        user.setReport_count(document.getLong("report_count") != null ? document.getLong("report_count").intValue() : 0);
+        user.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));
+        user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));
         user.setCountry_code(document.getString("country_code"));
         user.setTotal_count(document.get("total_count") != null ? document.getLong("total_count").intValue() : 0);
         user.setCurrent_page(document.get("current_page") != null ? document.getLong("current_page").intValue() : 0);
         user.setTotal_pages(document.get("total_pages") != null ? document.getLong("total_pages").intValue() : 0);
+
+        // 상태 필드 기본값 처리
         String status = document.contains("status") ? document.getString("status") : "Active";
         user.setStatus(status);
 
+        // 🔍 reports 컬렉션에서 해당 사용자의 신고 수 조회
+        CollectionReference reportsRef = db.collection("reports");
+        Query query = reportsRef
+                .whereEqualTo("report_type", "user")
+                .whereEqualTo("reported_user_id", user.getUser_id());
+
+        ApiFuture<QuerySnapshot> reportsFuture = query.get();
+        QuerySnapshot reportsSnapshot = reportsFuture.get();
+        int reportCount = reportsSnapshot.size();
+        user.setReport_count(reportCount);  // 동적으로 세팅
+
         return user;
     }
-
 
     // Firestore에서 전체 사용자 수를 조회
     public int getTotalUserCount() {
@@ -152,6 +229,8 @@ public class UserService {
         user.setBio(document.getString("bio"));
         user.setFollowers((List<String>) document.get("followers"));
         user.setFollowing((List<String>) document.get("following"));
+        user.setFollower_count(document.getLong("follower_count") != null ? document.getLong("follower_count").intValue() : 0);
+        user.setFollowing_count(document.getLong("following_count") != null ? document.getLong("following_count").intValue() : 0);
         user.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 수정됨
         user.setLast_login_at(formatTimestampToISO(document.getTimestamp("last_login_at")));  // 수정됨
         String phone_number = (String) document.get("phone_number");
@@ -283,6 +362,4 @@ public class UserService {
 
         return response;
     }
-
-
 }

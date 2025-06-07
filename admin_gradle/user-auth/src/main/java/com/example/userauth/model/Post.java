@@ -1,10 +1,10 @@
 package com.example.userauth.model;
 
-import com.google.cloud.Timestamp;
 import jakarta.persistence.ElementCollection;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -43,6 +43,7 @@ public class Post {
         private int report_count;
         private int like_count;
         private int view_count;
+        private String post_id;
 
         public String getComment_id() {
             return comment_id;
@@ -107,16 +108,28 @@ public class Post {
         public void setView_count(int view_count) {
             this.view_count = view_count;
         }
+
+        public String getPost_id() {
+            return post_id;
+        }
+
+        public void setPost_id(String post_id) {
+            this.post_id = post_id;
+        }
     }
-
-
 
     @Getter
     @NoArgsConstructor
     public static class Report {
         private String report_id;
+        private String reporter_id;
+        private String reporter_name;
+        private String reported_id;
+        private String reported_name;
         private String reason;
         private String status;
+        private LocalDateTime created_at;
+        private String post_content;
 
         public String getReport_id() {
             return report_id;
@@ -140,6 +153,54 @@ public class Post {
 
         public void setStatus(String status) {
             this.status = status;
+        }
+
+        public String getReporter_id() {
+            return reporter_id;
+        }
+
+        public void setReporter_id(String reporter_id) {
+            this.reporter_id = reporter_id;
+        }
+
+        public String getReporter_name() {
+            return reporter_name;
+        }
+
+        public void setReporter_name(String reporter_name) {
+            this.reporter_name = reporter_name;
+        }
+
+        public String getReported_id() {
+            return reported_id;
+        }
+
+        public void setReported_id(String reported_id) {
+            this.reported_id = reported_id;
+        }
+
+        public String getReported_name() {
+            return reported_name;
+        }
+
+        public void setReported_name(String reported_name) {
+            this.reported_name = reported_name;
+        }
+
+        public LocalDateTime getCreated_at() {
+            return created_at;
+        }
+
+        public void setCreated_at(LocalDateTime created_at) {
+            this.created_at = created_at;
+        }
+
+        public String getPost_content() {
+            return post_content;
+        }
+
+        public void setPost_content(String post_content) {
+            this.post_content = post_content;
         }
     }
 

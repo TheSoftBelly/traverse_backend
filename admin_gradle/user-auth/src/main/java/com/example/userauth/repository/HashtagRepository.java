@@ -1,11 +1,11 @@
 package com.example.userauth.repository;
 
 import com.example.userauth.model.Hashtag;
+import com.example.userauth.model.Hashtag.RelatedHashtag;
 import com.google.api.core.ApiFuture;
+import com.google.cloud.firestore.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import com.google.cloud.firestore.*;
-import com.example.userauth.model.Hashtag.RelatedHashtag;
 
 import java.util.ArrayList;
 import java.util.List;

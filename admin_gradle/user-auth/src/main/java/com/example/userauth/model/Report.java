@@ -1,9 +1,7 @@
 package com.example.userauth.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import jakarta.persistence.*;
-import jakarta.persistence.Column;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -45,6 +43,7 @@ public class Report {
     @ManyToOne
     @JoinColumn(name = "reported_user_id")
     private User reportedUser;
+
 
     public String getReport_id() {
         return report_id;

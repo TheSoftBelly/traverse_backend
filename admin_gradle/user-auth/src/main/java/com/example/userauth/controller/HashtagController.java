@@ -1,7 +1,7 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.service.HashtagService;
 import com.example.userauth.model.Hashtag;
+import com.example.userauth.service.HashtagService;
 import com.google.cloud.Timestamp;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

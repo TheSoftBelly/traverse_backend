@@ -1,6 +1,6 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.RoleUpdateRequest;
+import com.example.userauth.dto.request.RoleUpdateRequest;
 import com.example.userauth.model.Admin;
 import com.example.userauth.repository.AdminRepository;
 import com.example.userauth.security.JwtTokenProvider;
