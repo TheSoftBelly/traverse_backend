@@ -1,6 +1,5 @@
 package com.example.userauth.model;
 
-import com.google.cloud.Timestamp;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -42,7 +41,8 @@ public class User {
     private String reason;
     private Integer duration_days;
     private boolean suspended;  // 사용자 정지 상태
-
+    private int follower_count;
+    private int following_count;
 
     // 기본 생성자
     public User() {
@@ -61,7 +61,7 @@ public class User {
                 List<String> interest_keywords,
                 String status, String reason, Integer duration_days,
                 Integer total_count, Integer current_page, Integer total_pages,
-                boolean suspended) {
+                boolean suspended, int follower_count, int following_count) {
         this.user_id = user_id;
         this.user_name = user_name;
         this.email = email;
@@ -88,6 +88,8 @@ public class User {
         this.current_page = current_page;
         this.total_pages = total_pages;
         this.suspended = suspended;
+        this.following_count = following_count;
+        this.follower_count = follower_count;
     }
 
     public String getUser_id() {
@@ -304,5 +306,25 @@ public class User {
 
     public boolean isSuspended() {
         return suspended;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
+
+    public int getFollower_count() {
+        return follower_count;
+    }
+
+    public void setFollower_count(int follower_count) {
+        this.follower_count = follower_count;
+    }
+
+    public int getFollowing_count() {
+        return following_count;
+    }
+
+    public void setFollowing_count(int following_count) {
+        this.following_count = following_count;
     }
 }

@@ -19,7 +19,7 @@ public class CorsFilterConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Arrays.asList("http://***:3000", "http://localhost:3000"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With"));
         config.setExposedHeaders(Arrays.asList("Authorization"));
         config.setMaxAge(3600L);

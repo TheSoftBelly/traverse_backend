@@ -1,15 +1,15 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.ApiResponse;
-import com.example.userauth.dto.UserStatusUpdateRequest;
-import com.example.userauth.dto.UserListResponse;
+import com.example.userauth.dto.request.UserStatusUpdateRequest;
+import com.example.userauth.dto.response.ApiResponse;
+import com.example.userauth.dto.response.UserListResponse;
 import com.example.userauth.model.User;
 import com.example.userauth.service.UserService;
 import com.example.userauth.service.UserStatisticsService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.List;

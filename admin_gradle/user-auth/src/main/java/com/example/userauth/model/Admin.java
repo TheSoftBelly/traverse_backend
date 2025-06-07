@@ -1,12 +1,12 @@
 package com.example.userauth.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import java.sql.Timestamp;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -141,13 +141,12 @@ public class Admin implements UserDetails{
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
-        // role이 "ADMIN"일 경우 권한을 추가하는 예시입니다.
-        if ("ADMIN".equals(role)) {
-            authorities.add(new SimpleGrantedAuthority("data_manager"));
+        if (role != null && !role.isEmpty()) {
+            authorities.add(new SimpleGrantedAuthority(role));
         }
-        // 추가적인 권한을 원하면 여기에 추가할 수 있습니다.
         return authorities;
     }
+
 
     @Override
     public String getUsername() {

@@ -5,8 +5,8 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.stereotype.Repository;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -37,10 +37,10 @@ public class NotificationRepository {
             if (type != null && !type.isEmpty() && !type.equals(history.getType())) {
                 match = false;
             }
-            if (start != null && history.getSent_at().compareTo(start) < 0) {
+            if (start != null && history.getSentAt().compareTo(start) < 0) {
                 match = false;
             }
-            if (end != null && history.getSent_at().compareTo(end) > 0) {
+            if (end != null && history.getSentAt().compareTo(end) > 0) {
                 match = false;
             }
 
@@ -73,10 +73,10 @@ public class NotificationRepository {
             if (type != null && !type.isEmpty() && !type.equals(history.getType())) {
                 match = false;
             }
-            if (start != null && history.getSent_at().compareTo(start) < 0) {
+            if (start != null && history.getSentAt().compareTo(start) < 0) {
                 match = false;
             }
-            if (end != null && history.getSent_at().compareTo(end) > 0) {
+            if (end != null && history.getSentAt().compareTo(end) > 0) {
                 match = false;
             }
             return match;

@@ -1,9 +1,9 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.PostListResponseDTO;
-import com.example.userauth.dto.PostResponseDTO;
-import com.example.userauth.dto.PostStatusUpdateRequest;
-import com.example.userauth.dto.PostStatusUpdateResponseDTO;
+import com.example.userauth.dto.request.PostStatusUpdateRequest;
+import com.example.userauth.dto.response.PostListResponseDTO;
+import com.example.userauth.dto.response.PostResponseDTO;
+import com.example.userauth.dto.response.PostStatusUpdateResponseDTO;
 import com.example.userauth.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

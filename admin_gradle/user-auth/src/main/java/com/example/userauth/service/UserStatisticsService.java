@@ -1,7 +1,8 @@
 package com.example.userauth.service;
 
 import com.example.userauth.model.Admin;
-import com.example.userauth.model.User;
+import com.example.userauth.model.ReportEntity;
+import com.example.userauth.repository.NewReportCountRepository;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
@@ -10,6 +11,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -17,6 +21,11 @@ import java.util.concurrent.ExecutionException;
 public class UserStatisticsService {
 
     private static final Firestore db = FirestoreClient.getFirestore();
+    private final NewReportCountRepository newReportCountRepository;
+
+    public UserStatisticsService(NewReportCountRepository newReportCountRepository) {
+        this.newReportCountRepository = newReportCountRepository;
+    }
 
     // 사용자 통계 대시보드 데이터를 가져옴
     public Map<String, Object> getUserStatistics(String startDate, String endDate, String interval) {
@@ -35,12 +44,37 @@ public class UserStatisticsService {
             Date end = sdf.parse(endDate);
 
             Timestamp startTimestamp = Timestamp.of(start);
-            Timestamp endTimestamp = Timestamp.of(end);
+            // ✅ 하루를 더한 endTimestamp (다음날 00:00 기준)
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(end);
+            cal.add(Calendar.DAY_OF_MONTH, 1);
+            Timestamp endTimestamp = Timestamp.of(cal.getTime());
 
             // 사용자 통계
             int totalUsers = getTotalUserCount();
-            int newUsers = getNewUserCount(startTimestamp, endTimestamp);
-            int activeUsers = getActiveUserCount(startTimestamp, endTimestamp);
+            int newUsers = getNewUserCountToday(); // 수정된 부분
+            // activeUsers 계산: status가 없거나 "active"인 사용자만 카운트
+            int activeUsers = 0;
+            try {
+                CollectionReference usersRef = db.collection("users");
+                ApiFuture<QuerySnapshot> future = usersRef
+                        .whereGreaterThanOrEqualTo("created_at", startTimestamp)
+                        .whereLessThan("created_at", endTimestamp)
+                        .get();
+
+                List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+                long activeCount = documents.stream()
+                        .filter(doc -> {
+                            Object status = doc.get("status");
+                            return status == null || "active".equals(status.toString());
+                        })
+                        .count();
+
+                activeUsers = (int) activeCount;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // 사용자 트렌드
             List<Map<String, Object>> userTrend = getUserTrend(startTimestamp, endTimestamp, interval);
@@ -99,45 +133,121 @@ public class UserStatisticsService {
 
     // 활성 사용자 수를 가져옴
     private int getActiveUserCount(Timestamp start, Timestamp end) throws ExecutionException, InterruptedException {
-        Query query = db.collection("users")
-                .whereGreaterThanOrEqualTo("last_login_at", start)
-                .whereLessThanOrEqualTo("last_login_at", end);
+        CollectionReference usersRef = db.collection("users");
 
-        ApiFuture<QuerySnapshot> future = query.get();
-        QuerySnapshot querySnapshot = future.get();
-        return querySnapshot.size();
+        // last_login_at 기준으로 필터링 (start <= last_login_at < end)
+        ApiFuture<QuerySnapshot> future = usersRef
+                .whereGreaterThanOrEqualTo("last_login_at", start)
+                .whereLessThan("last_login_at", end)
+                .get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+
+        // status가 null이거나 "active"인 사용자 필터링
+        long activeCount = documents.stream()
+                .filter(doc -> {
+                    Object status = doc.get("status");
+                    return status == null || "active".equals(status.toString());
+                })
+                .count();
+
+        return (int) activeCount;
     }
+
 
     // 사용자 트렌드를 일별, 주간, 월간으로 가져옴
     private List<Map<String, Object>> getUserTrend(Timestamp start, Timestamp end, String interval) throws ExecutionException, InterruptedException {
         List<Map<String, Object>> trend = new ArrayList<>();
-        // 이 부분은 주어진 interval에 맞춰서 데이터를 집계해야 합니다.
-        // 예시로 일별 데이터를 처리하는 방법을 보여줍니다.
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(start.toDate());
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
         while (calendar.getTime().before(end.toDate())) {
             Date currentDate = calendar.getTime();
-            String formattedDate = new SimpleDateFormat("yyyy-MM-dd").format(currentDate);
+            String formattedDate = sdf.format(currentDate);
 
-            int count = getUserCountByDate(currentDate);
-            int newUsers = getNewUserCountByDate(currentDate);
-            int activeUsers = getActiveUserCountByDate(currentDate);
+            // 현재 날짜를 기준으로 00:00:00 ~ 23:59:59 Timestamp 생성
+            Calendar dayStart = Calendar.getInstance();
+            dayStart.setTime(currentDate);
+            dayStart.set(Calendar.HOUR_OF_DAY, 0);
+            dayStart.set(Calendar.MINUTE, 0);
+            dayStart.set(Calendar.SECOND, 0);
+            dayStart.set(Calendar.MILLISECOND, 0);
+
+            Timestamp dayStartTs = Timestamp.of(dayStart.getTime());
+            Calendar dayEnd = (Calendar) dayStart.clone();
+            dayEnd.add(Calendar.DAY_OF_MONTH, 1);
+
+            Timestamp dayEndTs = Timestamp.of(dayEnd.getTime());
+
+            // 모든 사용자 가져오기 (created_at 필드 존재하는)
+            ApiFuture<QuerySnapshot> usersFuture = db.collection("users")
+                    .whereLessThan("created_at", dayEndTs)  // created_at <= date
+                    .get();
+
+            List<QueryDocumentSnapshot> users = usersFuture.get().getDocuments();
+
+            int totalCount = users.size();
+
+            // active users: status가 없거나 == "active"
+            int activeCount = (int) users.stream()
+                    .filter(doc -> {
+                        Object status = doc.get("status");
+                        return status == null || "active".equals(status);
+                    })
+                    .count();
+
+            // new users: created_at >= dayStart && < dayEnd
+            int newUserCount = (int) users.stream()
+                    .filter(doc -> {
+                        Timestamp createdAt = doc.getTimestamp("created_at");
+                        return createdAt != null &&
+                                !createdAt.toDate().before(dayStart.getTime()) &&
+                                createdAt.toDate().before(dayEnd.getTime());
+                    })
+                    .count();
 
             Map<String, Object> trendData = new HashMap<>();
             trendData.put("date", formattedDate);
-            trendData.put("count", count);
-            trendData.put("new_users", newUsers);
-            trendData.put("active_users", activeUsers);
+            trendData.put("count", totalCount);
+            trendData.put("new_users", newUserCount);
+            trendData.put("active_users", activeCount);
 
             trend.add(trendData);
 
-            // 날짜를 1일씩 증가시킴
+            // 다음 날짜로 이동
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         return trend;
+    }
+
+    private int getNewUserCountToday() throws ExecutionException, InterruptedException {
+        CollectionReference usersRef = db.collection("users");
+
+        // 오늘 자정 기준 시작/끝 시간 설정
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        Date startOfDay = calendar.getTime();
+
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        Date endOfDay = calendar.getTime();
+
+        Timestamp start = Timestamp.of(startOfDay);
+        Timestamp end = Timestamp.of(endOfDay);
+
+        ApiFuture<QuerySnapshot> future = usersRef
+                .whereGreaterThanOrEqualTo("created_at", start)
+                .whereLessThan("created_at", end)
+                .get();
+
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+        return documents.size();
     }
 
     // 특정 날짜의 사용자 수를 가져옴
@@ -180,40 +290,41 @@ public class UserStatisticsService {
     }
 
     // 리포트 통계
-    private Map<String, Object> getReportStatistics(Timestamp start, Timestamp end) throws ExecutionException, InterruptedException {
+    private Map<String, Object> getReportStatistics(Timestamp startTimestamp, Timestamp endTimestamp) throws ExecutionException, InterruptedException {
         Map<String, Object> reportStats = new HashMap<>();
-        // 리포트 데이터를 집계하는 로직
+
+        // ✅ 1. Firebase에서 start~end 구간의 신고 데이터 조회
         Query query = db.collection("reports")
-                .whereGreaterThanOrEqualTo("created_at", start)
-                .whereLessThanOrEqualTo("created_at", end);
+                .whereGreaterThanOrEqualTo("created_at", startTimestamp)
+                .whereLessThan("created_at", endTimestamp);
 
         ApiFuture<QuerySnapshot> future = query.get();
-        QuerySnapshot querySnapshot = future.get();
+        List<QueryDocumentSnapshot> documents = future.get().getDocuments();
 
-        int total = querySnapshot.size();
+        int total = documents.size();
         int pending = 0;
         int resolved = 0;
         Map<String, Integer> categoryCountMap = new HashMap<>();
 
-        for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+        for (DocumentSnapshot doc : documents) {
             String status = doc.getString("status");
-            if ("pending".equals(status)) {
+            if ("pending".equalsIgnoreCase(status)) {
                 pending++;
-            } else if ("resolved".equals(status)) {
+            } else if ("resolved".equalsIgnoreCase(status)) {
                 resolved++;
             }
 
-            String category = doc.getString("category");
-            if (category != null) {
-                categoryCountMap.put(category, categoryCountMap.getOrDefault(category, 0) + 1);
+            String reason = doc.getString("reason");
+            if (reason != null) {
+                categoryCountMap.put(reason, categoryCountMap.getOrDefault(reason, 0) + 1);
             }
         }
 
+        // ✅ 결과 구성
         reportStats.put("total", total);
         reportStats.put("pending", pending);
         reportStats.put("resolved", resolved);
 
-        // 카테고리별 리포트 수
         List<Map<String, Object>> byCategory = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : categoryCountMap.entrySet()) {
             Map<String, Object> categoryData = new HashMap<>();

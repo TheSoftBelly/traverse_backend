@@ -1,6 +1,7 @@
 package com.example.userauth.service;
 
 import com.example.userauth.model.Hashtag;
+import com.example.userauth.model.Hashtag.RelatedHashtag;
 import com.example.userauth.repository.HashtagRepository;
 import com.google.cloud.firestore.CollectionReference;
 import com.google.cloud.firestore.DocumentSnapshot;
@@ -10,15 +11,14 @@ import com.google.firebase.cloud.FirestoreClient;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.example.userauth.model.Hashtag.RelatedHashtag;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 @Service
 public class HashtagService {
@@ -201,7 +201,9 @@ public class HashtagService {
 
         Instant startInstant = LocalDate.parse(startDate).atStartOfDay(ZoneId.systemDefault()).toInstant();
         Instant endInstant = LocalDate.parse(endDate).atStartOfDay(ZoneId.systemDefault()).toInstant();
-        Instant todayInstant = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
+
+        Instant todayStart = today.atStartOfDay(ZoneId.systemDefault()).toInstant();
+        Instant todayEnd = today.plusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant();
 
         CollectionReference hashtagCollection = db.collection("hashtags");
         QuerySnapshot snapshot = hashtagCollection
@@ -212,7 +214,7 @@ public class HashtagService {
 
         int totalHashtags = hashtagCollection.get().get().size();
         int newHashtags = 0;
-        List<Map<String, Object>> trendingHashtags = new ArrayList<>();
+        List<Map<String, Object>> allHashtags = new ArrayList<>();
         List<Map<String, Object>> hashtagTrend = new ArrayList<>();
 
         Map<String, Integer> hashtagCountByDate = new TreeMap<>();
@@ -223,21 +225,34 @@ public class HashtagService {
             Long usageCount = doc.getLong("usage_count");
             Date createdAt = doc.getDate("created_at");
 
-            if (createdAt != null && createdAt.toInstant().isAfter(todayInstant)) {
-                newHashtags++;
+            if (createdAt != null) {
+                Instant created = createdAt.toInstant();
+
+                if (!created.isBefore(todayStart) && created.isBefore(todayEnd)) {
+                    newHashtags++;
+                }
+
+                String createdDateStr = dateFormat.format(createdAt);
+                hashtagCountByDate.put(createdDateStr, hashtagCountByDate.getOrDefault(createdDateStr, 0) + 1);
+                newHashtagCountByDate.put(createdDateStr, newHashtagCountByDate.getOrDefault(createdDateStr, 0) + 1);
             }
 
-            trendingHashtags.add(Map.of(
+            allHashtags.add(Map.of(
                     "id", doc.getId(),
                     "name", name,
                     "growth_rate", Math.random() * 0.1,
                     "usage_count", usageCount != null ? usageCount : 0
             ));
-
-            String createdDateStr = dateFormat.format(createdAt);
-            hashtagCountByDate.put(createdDateStr, hashtagCountByDate.getOrDefault(createdDateStr, 0) + 1);
-            newHashtagCountByDate.put(createdDateStr, newHashtagCountByDate.getOrDefault(createdDateStr, 0) + 1);
         }
+
+        // ✅ usage_count 기준 내림차순 정렬 후 상위 10개 추출
+        List<Map<String, Object>> trendingHashtags = allHashtags.stream()
+                .sorted((a, b) -> Long.compare(
+                        ((Number) b.get("usage_count")).longValue(),
+                        ((Number) a.get("usage_count")).longValue()
+                ))
+                .limit(10)
+                .collect(Collectors.toList());
 
         for (String date : hashtagCountByDate.keySet()) {
             hashtagTrend.add(Map.of(
@@ -250,13 +265,14 @@ public class HashtagService {
         Map<String, Object> result = new HashMap<>();
         result.put("success", true);
         result.put("total_hashtags", totalHashtags);
-        result.put("new_hashtags", totalHashtags);
-        result.put("trending_hashtags", trendingHashtags);
+        result.put("new_hashtags", newHashtags);
+        result.put("trending_hashtags", trendingHashtags); // ✅ usage_count 기준 정렬된 상위 해시태그
         result.put("hashtag_trend", hashtagTrend);
 
         System.out.println("Hashtag Statistics Response: " + result);
         return result;
     }
+
 
 
 }

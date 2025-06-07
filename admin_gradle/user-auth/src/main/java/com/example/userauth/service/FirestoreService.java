@@ -12,8 +12,6 @@ import java.util.concurrent.ExecutionException;
 
 @Service
 public class FirestoreService {
-
-
     // 특정 컬렉션에서 문서를 가져옴
     public Map<String, Object> getDocument(String collection, String documentId) {
         try {
