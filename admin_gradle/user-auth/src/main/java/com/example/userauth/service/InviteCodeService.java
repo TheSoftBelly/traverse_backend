@@ -1,12 +1,13 @@
 package com.example.userauth.service;
 
+import com.example.userauth.dto.response.InviteCodeValidationResponse;
 import com.example.userauth.model.InviteCode;
 import com.example.userauth.repository.InviteCodeRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import com.example.userauth.dto.InviteCodeValidationResponse;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +41,7 @@ public class InviteCodeService {
         InviteCode inviteCode = new InviteCode();
         inviteCode.setCode(code);
         inviteCode.setRole(role);
+        inviteCode.setEmail(email); // ✅ 초대코드에 이메일 저장
         inviteCode.setExpiresAt(expiresAt);
 
         System.out.println("Saved invite code: " + inviteCode);  // 로그로 확인
@@ -69,15 +71,18 @@ public class InviteCodeService {
 
         InviteCode inviteCode = inviteCodeOpt.get();
 
-        // 만료된 코드 확인
         if (inviteCode.getExpiresAt().isBefore(LocalDateTime.now())) {
             return new InviteCodeValidationResponse(false, null, "초대 코드가 만료되었습니다.");
         }
 
-        // 유효한 코드일 경우
-        InviteCodeValidationResponse.Data data = new InviteCodeValidationResponse.Data(true, inviteCode.getRole());
+        InviteCodeValidationResponse.Data data = new InviteCodeValidationResponse.Data(
+                true,
+                inviteCode.getRole(),
+                inviteCode.getEmail() // ✅ 초대 이메일 전달
+        );
         return new InviteCodeValidationResponse(true, data, inviteCode.getRole() + " 권한으로 인증된 유효한 코드입니다.");
     }
+
 
     @Scheduled(fixedRate = 86400000)  // 24시간(86400000ms)마다 실행
     public void deleteExpiredInviteCodes() {

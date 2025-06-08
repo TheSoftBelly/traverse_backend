@@ -1,11 +1,13 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.AdminSummary;
-import com.example.userauth.dto.ApiResponse;
-import com.example.userauth.dto.LoginResponse;
-import com.example.userauth.dto.RegisterRequest;
+import com.example.userauth.dto.request.RegisterRequest;
+import com.example.userauth.dto.response.AdminSummary;
+import com.example.userauth.dto.response.ApiResponse;
+import com.example.userauth.dto.response.LoginResponse;
 import com.example.userauth.model.Admin;
+import com.example.userauth.model.InviteCode;
 import com.example.userauth.repository.AdminRepository;
+import com.example.userauth.repository.InviteCodeRepository;
 import com.example.userauth.security.JwtTokenProvider;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +16,16 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AuthService {
 
     @Autowired
     private AdminRepository adminRepository;
+
+    @Autowired
+    private InviteCodeRepository inviteCodeRepository;
 
     @Autowired
     private final JwtTokenProvider jwtTokenProvider; // 🔹 JWT 토큰 프로바이더 추가
@@ -32,42 +38,34 @@ public class AuthService {
 
     // 비밀번호 암호화 및 사용자 등록 처리
     public boolean register(RegisterRequest registerRequest) {
-        System.out.println("Received inviteCode: " + registerRequest.getInvite_code());  // 로그로 확인
-        // 이메일 중복 체크
         if (adminRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("이미 사용 중인 이메일입니다.");
         }
-        // 1. 비밀번호 암호화
+
+        // 비밀번호 암호화
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
-        // 2. Admin 엔티티 생성 및 값 설정
+        // 초대코드로 역할 가져오기
+        Optional<InviteCode> inviteCode = inviteCodeRepository.findByCode(registerRequest.getInvite_code());
+        if (inviteCode.isEmpty()) {
+            throw new RuntimeException("유효하지 않은 초대 코드입니다.");
+        }
+
+        String role = inviteCode.get().getRole();
+
         Admin admin = new Admin();
         admin.setName(registerRequest.getName());
         admin.setEmail(registerRequest.getEmail());
-        admin.setPassword(encodedPassword);// 암호화된 비밀번호 저장
+        admin.setPassword(encodedPassword);
         admin.setPasswordConfirm(encodedPassword);
-        admin.setInvitecode(registerRequest.getInvite_code());  // 인증 코드 설정
+        admin.setInvitecode(registerRequest.getInvite_code());
+        admin.setRole(role);
 
-        // invite_code에 따른 role 설정
-        String role = determineRole(registerRequest.getInvite_code());
-        admin.setRole(role);  // role 필드 설정
-
-        // 3. 데이터베이스에 저장
-        adminRepository.save(admin);  // Admin 정보를 DB에 저장
-
-        return true;  // 성공적으로 저장되었으면 true 반환
+        adminRepository.save(admin);
+        return true;
     }
 
-    private String determineRole(String inviteCode) {
-        return switch (inviteCode) {
-            case "chief_manager_code" -> "chief_manager";
-            case "post_manager_code" -> "post_manager";
-            case "chat_manager_code" -> "chat_manager";
-            case "user_manager_code" -> "user_manager";
-            default -> "data_manager";
-        };
-    }
 
 
     // 로그인 로직 (비밀번호 검증 등)

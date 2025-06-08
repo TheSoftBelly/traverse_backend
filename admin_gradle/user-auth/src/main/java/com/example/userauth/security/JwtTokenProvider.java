@@ -10,10 +10,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -64,26 +62,24 @@ public class JwtTokenProvider {
 
     // 🔹 JWT 토큰 생성
     public String generateToken(Admin admin) {
-        // 사용자 이메일을 Subject로 설정
-        String subject = admin.getEmail();
+        Claims claims = Jwts.claims().setSubject(admin.getEmail());
 
-        // JWT Claims: 이메일, 역할, 사용자 ID 등
-        Claims claims = Jwts.claims().setSubject(subject);
-        claims.put("role", admin.getRole());  // role 추가
-        claims.put("user_id", admin.getId());  // 사용자 ID 추가 (예시)
+        System.out.println("[JWT 생성] 이메일: " + admin.getEmail());
+        System.out.println("[JWT 생성] 역할: " + admin.getRole());
 
-        // JWT 생성
-        try {
-            return Jwts.builder()
-                    .setClaims(claims)
-                    .setIssuedAt(new Date())  // 발급 시간
-                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // 만료 시간
-                    .signWith(SignatureAlgorithm.HS256, jwtSecret) // HMAC SHA256 알고리즘으로 서명
-                    .compact();
-        } catch (Exception e) {
-            throw new RuntimeException("JWT 토큰 생성 중 오류 발생", e);
-        }
+        // 🔥 권한을 배열로 저장해야 이후 parsing이 일관되게 작동
+        claims.put("roles", List.of(admin.getRole()));  // ex: ["chief_manager"]
+
+        claims.put("user_id", admin.getId());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(SignatureAlgorithm.HS256, jwtSecret)
+                .compact();
     }
+
 
     // JWT 토큰 검증 및 정보 추출
     public String getEmailFromToken(String token) {
@@ -119,9 +115,10 @@ public class JwtTokenProvider {
 
     public List<SimpleGrantedAuthority> getAuthoritiesFromToken(String token) {
         Claims claims = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(token).getBody();
-        List<String> roles = (List<String>) claims.get("roles");  // 예시로 roles 키 사용
+        List<String> roles = (List<String>) claims.get("roles");  // 이제 정상 작동
         return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
+
 
     public Authentication getAuthentication(Admin admin) { // 🔹 UserDetails 없이 Authentication 반환
         Collection<? extends GrantedAuthority> authorities = admin.getAuthorities();

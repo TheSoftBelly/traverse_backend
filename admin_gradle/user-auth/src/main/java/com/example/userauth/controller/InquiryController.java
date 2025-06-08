@@ -1,7 +1,7 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.InquiryReplyDTO;
-import com.example.userauth.dto.InquiryStatusUpdateDTO;
+import com.example.userauth.dto.request.InquiryReplyDTO;
+import com.example.userauth.dto.request.InquiryStatusUpdateDTO;
 import com.example.userauth.service.InquiryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

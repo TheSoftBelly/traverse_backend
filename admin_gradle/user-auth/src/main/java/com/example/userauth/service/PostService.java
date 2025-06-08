@@ -1,18 +1,21 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.PostListResponseDTO;
-import com.example.userauth.dto.PostResponseDTO;
-import com.example.userauth.dto.PostStatusUpdateRequest;
+import com.example.userauth.dto.request.PostStatusUpdateRequest;
+import com.example.userauth.dto.response.PostListResponseDTO;
+import com.example.userauth.dto.response.PostResponseDTO;
 import com.example.userauth.model.Post;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import org.springframework.stereotype.Service;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -29,53 +32,47 @@ public class PostService {
         List<Post> posts = new ArrayList<>();
         String lastDocId = null;
 
-        // Firestore에서 게시물 데이터 조회
         CollectionReference postsRef = db.collection("Post");
         Query query = postsRef;
 
-        // 페이지네이션: 페이지 > 1일 경우 lastDocId로 쿼리 시작
         if (page > 1 && lastDocId != null) {
             DocumentReference lastDocRef = db.collection("Post").document(lastDocId);
             query = query.startAfter(lastDocRef);
         }
 
-        // 검색 필터 (post_id 또는 post_content에 검색어 포함)
         if (search != null && !search.isEmpty()) {
             query = query.whereGreaterThanOrEqualTo("post_id", search)
                     .whereLessThanOrEqualTo("post_id", search + "\uf8ff");
         }
 
-        // 사용자 ID 필터링
         if (user_id != null && !user_id.isEmpty()) {
             query = query.whereEqualTo("user_id", user_id);
         }
 
-        // 정렬 및 페이지 제한
-        query = query.orderBy(sortBy, sortOrder.equals("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
+        // report_count가 0보다 큰 것만 필터링 (신고된 게시물만 보기)
+        if (hasReports != null && hasReports) {
+            query = query.whereGreaterThan("report_count", 0);
+        }
+
+        query = query.orderBy(sortBy, sortOrder.equalsIgnoreCase("desc") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING)
                 .limit(limit);
 
-        // Firestore 쿼리 실행
         ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot querySnapshot = future.get();
 
         System.out.println("쿼리 결과 문서 수: " + querySnapshot.size());
 
         for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-            System.out.println("문서 ID: " + document.getId());  // 각 게시물의 문서 ID 출력
+            System.out.println("문서 ID: " + document.getId());
 
-            // hasReports 필드 값 계산
-            Long reports = (Long) document.get("report_count");
             int reportCount = document.getLong("report_count") != null ? document.getLong("report_count").intValue() : 0;
 
-
-            // Post 객체로 변환
             Post post = convertToPost(document);
-            post.setReport_count((long) reportCount);  // hasReports 필드를 reportCount 값으로 설정
+            post.setReport_count((long) reportCount);
 
-            posts.add(post);  // Firestore 문서를 Post 객체로 변환하여 리스트에 추가
+            posts.add(post);
         }
 
-        // 게시물 응답 DTO 생성
         List<PostResponseDTO> postDtos = posts.stream()
                 .map(PostResponseDTO::new)
                 .collect(Collectors.toList());
@@ -102,7 +99,12 @@ public class PostService {
         post.setpost_Id(document.getString("post_id"));  // Firestore에서 post_id 필드를 가져옵니다.
         post.setTitle(document.getString("title"));  // 제목 필드 가져오기
         post.setPost_content(document.getString("post_content"));  // 게시물 내용 필드
-        post.setStatus(document.getString("status"));  // 게시물 상태
+        // status 필드가 없거나 null이거나 "active"일 경우 기본값 "active" 설정
+        String status = document.getString("status");
+        if (status == null || status.isEmpty() || "active".equalsIgnoreCase(status)) {
+            status = "active";
+        }
+        post.setStatus(status);  // 게시물 상태
         post.setUser_id(document.getString("user_id"));  // 사용자 ID
         post.setUser_name(document.getString("user_name"));  // 사용자 이름
         post.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));  // 생성일시
@@ -153,39 +155,105 @@ public class PostService {
     }
 
     private List<Post.Comment> getCommentsForPost(String postId) throws ExecutionException, InterruptedException {
-        CollectionReference commentsRef = db.collection("Post").document(postId).collection("Comments");
-        ApiFuture<QuerySnapshot> future = commentsRef.get();
+        // Post_Comments 컬렉션에서 post_id 필드가 해당 postId와 일치하는 문서들을 조회
+        CollectionReference commentsRef = db.collection("Post_Comments");
+        Query query = commentsRef.whereEqualTo("post_id", postId);
+
+        ApiFuture<QuerySnapshot> future = query.get();
         QuerySnapshot querySnapshot = future.get();
 
         List<Post.Comment> comments = new ArrayList<>();
         for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-            comments.add(convertToComment(document));  // Firestore 문서를 Comment 객체로 변환
+            comments.add(convertToComment(document));
         }
         return comments;
     }
 
-    private List<Post.Report> getReportsForPost(String postId) throws ExecutionException, InterruptedException {
-        CollectionReference reportsRef = db.collection("Post").document(postId).collection("Reports");
-        ApiFuture<QuerySnapshot> future = reportsRef.get();
-        QuerySnapshot querySnapshot = future.get();
 
-        List<Post.Report> reports = new ArrayList<>();
-        for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-            reports.add(convertToReport(document));  // Firestore 문서를 Report 객체로 변환
+    private List<Post.Report> getReportsForPost(String postId) throws ExecutionException, InterruptedException {
+        List<Post.Report> reportList = new ArrayList<>();
+
+        // 1. report_type == "post" AND post_id == {postId}
+        CollectionReference reportsRef = db.collection("reports");
+        Query query = reportsRef
+                .whereEqualTo("report_type", "post")
+                .whereEqualTo("post_id", postId);
+
+        List<QueryDocumentSnapshot> reportDocs = query.get().get().getDocuments();
+
+        // 2. 전체 users 문서 미리 조회 (user_id 기반 이름 매핑을 위해)
+        Map<String, String> userIdToNameMap = new HashMap<>();
+        List<QueryDocumentSnapshot> userDocs = db.collection("users").get().get().getDocuments();
+        for (QueryDocumentSnapshot userDoc : userDocs) {
+            Map<String, Object> userData = userDoc.getData();
+            if (userData.containsKey("user_id") && userData.containsKey("user_name")) {
+                String uid = userData.get("user_id").toString();
+                String uname = userData.get("user_name").toString();
+                userIdToNameMap.put(uid, uname);
+            }
         }
-        return reports;
+
+        for (QueryDocumentSnapshot doc : reportDocs) {
+            Map<String, Object> data = doc.getData();
+
+            Post.Report report = new Post.Report();
+            report.setReport_id(doc.getId());
+
+            // reporter
+            String reporterId = (String) data.get("reporter_user_id");
+            report.setReporter_id(reporterId);
+            report.setReporter_name(userIdToNameMap.getOrDefault(reporterId, "unknown"));
+
+            // post 작성자 (reported)
+            DocumentSnapshot postDoc = db.collection("Post").document(postId).get().get();
+            String authorId = postDoc.contains("user_id") ? postDoc.getString("user_id") : null;
+            String authorName = userIdToNameMap.getOrDefault(authorId, "unknown");
+            report.setReported_id(authorId);
+            report.setReported_name(authorName);
+
+            // 기타 필드
+            report.setReason((String) data.get("reason"));
+            report.setStatus((String) data.get("status"));
+            report.setCreated_at(toLocalDateTime(data.get("created_at")));
+            report.setPost_content((String) data.get("post_content"));
+
+            reportList.add(report);
+        }
+
+        return reportList;
     }
+
+    private LocalDateTime toLocalDateTime(Object firestoreTimestamp) {
+        if (firestoreTimestamp == null) {
+            return null;
+        }
+        if (firestoreTimestamp instanceof Timestamp) {
+            Timestamp ts = (Timestamp) firestoreTimestamp;
+            return LocalDateTime.ofEpochSecond(ts.getSeconds(), ts.getNanos(), ZoneOffset.UTC);
+        }
+        if (firestoreTimestamp instanceof Date) {
+            Date date = (Date) firestoreTimestamp;
+            return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        }
+        return null;
+    }
+
 
     private Post.Comment convertToComment(DocumentSnapshot document) {
         Post.Comment comment = new Post.Comment();
-        comment.setComment_id(document.getId());
-        comment.setUser_id(document.getString("user_id"));
-        comment.setUser_name(document.getString("user_name"));
+        comment.setComment_id(document.getString("comment_id"));
         comment.setContent(document.getString("content"));
-        comment.setCreated_at(formatTimestampToISO(document.getTimestamp("created_at")));
-        comment.setReport_count(document.getLong("report_count").intValue());
+        comment.setCreated_at(String.valueOf(document.getTimestamp("created_at")));
+        comment.setPost_id(document.getString("post_id"));
+        comment.setUser_id(document.getString("user_id"));
+
+        // null-safe로 숫자 값 처리
+        Long likeCount = document.getLong("like_count");
+        comment.setLike_count(likeCount != null ? likeCount.intValue() : 0);
+
         return comment;
     }
+
 
     private Post.Report convertToReport(DocumentSnapshot document) {
         Post.Report report = new Post.Report();

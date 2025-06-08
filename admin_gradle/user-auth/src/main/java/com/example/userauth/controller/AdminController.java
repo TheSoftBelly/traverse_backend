@@ -1,11 +1,11 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.ApiResponse;
-import com.example.userauth.dto.RoleUpdateRequest;
+import com.example.userauth.dto.request.RoleUpdateRequest;
+import com.example.userauth.dto.response.ApiResponse;
 import com.example.userauth.model.ActivityLog;
 import com.example.userauth.security.JwtTokenProvider;
-import com.example.userauth.service.AdminService;
 import com.example.userauth.service.ActivityLogService;
+import com.example.userauth.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
