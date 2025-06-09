@@ -1,10 +1,12 @@
 package com.example.userauth.controller;
 
-import com.example.userauth.dto.request.ReportProcessRequest;
+import com.google.cloud.firestore.*;
 import com.example.userauth.dto.response.ApiResponse;
 import com.example.userauth.dto.response.ReportDTO;
 import com.example.userauth.service.ReportService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.cloud.firestore.DocumentSnapshot;
+import com.google.cloud.firestore.Firestore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,9 +29,11 @@ import java.util.Optional;
 public class ReportController {
 
     private final ReportService reportService;
+    private final Firestore firestore;
 
     @Autowired
-    public ReportController(ReportService reportService) {
+    public ReportController(ReportService reportService, Firestore firestore) {
+        this.firestore = firestore;
         this.reportService = reportService;
     }
 
@@ -136,17 +140,35 @@ public class ReportController {
 
     // 신고 상세 조회 API
     @GetMapping("/{reportId}")
-    public ResponseEntity<Object> getReportDetails(@PathVariable String reportId) {
+    public ResponseEntity<?> getReportDetail(@PathVariable String reportId) {
         try {
-            Map<String, Object> report = reportService.getReportDetailsAsMap(reportId);
-            if (report.isEmpty()) {
-                return ResponseEntity.status(404).body(Map.of("success", false, "error", "신고를 찾을 수 없습니다."));
+            DocumentSnapshot reportSnapshot = firestore.collection("reports").document(reportId).get().get();
+
+            if (!reportSnapshot.exists()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("신고 정보를 찾을 수 없습니다.");
             }
-            return ResponseEntity.ok(report);
+
+            String reportType = reportSnapshot.getString("report_type");
+            boolean postExists = true;
+
+            if ("post".equals(reportType)) {
+                String postId = reportSnapshot.getString("post_id");
+                if (postId != null) {
+                    DocumentSnapshot postSnapshot = firestore.collection("Post").document(postId).get().get();
+                    postExists = postSnapshot.exists();
+                }
+            }
+
+            Map<String, Object> data = reportSnapshot.getData();
+            data.put("post_exists", postExists);
+
+            return ResponseEntity.ok(data);
+
         } catch (Exception e) {
-            return ResponseEntity.status(500).body(Map.of("success", false, "error", "서버 오류: " + e.getMessage()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 오류: " + e.getMessage());
         }
     }
+
 
 
     // 신고 상태 업데이트 API
@@ -179,8 +201,9 @@ public class ReportController {
         boolean notifyReporter = requestMap.get("notify_reporter") != null && (Boolean) requestMap.get("notify_reporter");
         boolean notifyReported = requestMap.get("notify_reported") != null && (Boolean) requestMap.get("notify_reported");
         Integer suspensionDuration = requestMap.get("suspension_duration") != null ? ((Number) requestMap.get("suspension_duration")).intValue() : null;
+        boolean deletePost = requestMap.get("delete_post") != null && (Boolean) requestMap.get("delete_post");
 
-        return reportService.processReport(reportId, status, actionTaken, comment, notifyReporter, notifyReported, suspensionDuration);
+        return reportService.processReport(reportId, status, actionTaken, comment, notifyReporter, notifyReported, suspensionDuration, deletePost);
     }
 
     // 오류 처리
@@ -190,4 +213,8 @@ public class ReportController {
                 .status(500)
                 .body(Map.of("success", false, "error", "서버 오류: " + e.getMessage()));
     }
+
+
+
+
 }
