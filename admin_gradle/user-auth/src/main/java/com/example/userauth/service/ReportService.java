@@ -127,12 +127,31 @@ public class ReportService {
                 }
                 break;
             case "comment":
-                response.put("target_id", report.getComment_id());
-                response.put("target_details", report.getComment_content());
                 response.put("comment_id", report.getComment_id());
                 response.put("comment_content", report.getComment_content());
                 response.put("parent_comment_id", report.getParent_comment_id());
+                response.put("target_details", report.getComment_content()); // 기존 유지
+
+                String commentId = report.getComment_id();
+                String targetUserId = null;
+
+                if (commentId != null && !commentId.isEmpty()) {
+                    // 먼저 Snap_Comments에서 검색
+                    DocumentSnapshot snapCommentDoc = firestore.collection("Snap_Comments").document(commentId).get().get();
+                    if (snapCommentDoc.exists() && snapCommentDoc.contains("user_id")) {
+                        targetUserId = snapCommentDoc.getString("user_id");
+                    } else {
+                        // Snap_Comments에 없다면 Post_Comments에서 검색
+                        DocumentSnapshot postCommentDoc = firestore.collection("Post_Comments").document(commentId).get().get();
+                        if (postCommentDoc.exists() && postCommentDoc.contains("user_id")) {
+                            targetUserId = postCommentDoc.getString("user_id");
+                        }
+                    }
+                }
+
+                response.put("target_id", targetUserId); // 댓글 작성자의 user_id를 target_id로 설정
                 break;
+
             default:
                 response.put("target_id", null);
                 response.put("target_details", null);
@@ -249,7 +268,7 @@ public class ReportService {
 
 
     public String processReport(String reportId, String status, String actionTaken, String comment,
-                                boolean notifyReporter, boolean notifyReported, Integer suspensionDuration) {
+                                boolean notifyReporter, boolean notifyReported, Integer suspensionDuration, boolean deletePost) {
         DocumentReference reportRef = firestore.collection("reports").document(reportId);
         String message = "";
 
@@ -278,23 +297,24 @@ public class ReportService {
             if ("post".equals(reportType)) {
                 String postId = reportSnapshot.getString("post_id");
                 if (postId != null) {
-                    DocumentSnapshot postSnapshot = firestore.collection("Post").document(postId).get().get();
+                    DocumentReference postRef = firestore.collection("Post").document(postId);
+                    DocumentSnapshot postSnapshot = postRef.get().get();
+
                     if (postSnapshot.exists()) {
                         String userId = postSnapshot.getString("user_id");
-                        System.out.println("user_id : " + userId);
                         if (userId != null) {
                             updateUserAction(userId, null, actionTaken, suspensionDuration);
-                        } else {
-                            System.out.println("⚠️ user_id가 null입니다. Post ID: " + postId);
+                        }
+
+                        if (deletePost) {
+                            postRef.delete().get();  // 게시물 삭제
+                            System.out.println("✅ 게시물이 삭제되었습니다. Post ID: " + postId);
                         }
                     } else {
                         System.out.println("⚠️ Post 문서를 찾을 수 없습니다. Post ID: " + postId);
                     }
-                } else {
-                    System.out.println("⚠️ post_id가 report 문서에 없습니다. Report ID: " + reportId);
                 }
             }
-
 
             // ==== 스냅 신고 처리 ====
             if ("snap".equals(reportType)) {
