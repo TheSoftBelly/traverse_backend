@@ -1,6 +1,8 @@
 package com.example.userauth.service;
 
-import com.example.userauth.dto.*;
+import com.example.userauth.dto.request.NotificationTemplateRequest;
+import com.example.userauth.dto.request.SendNotificationRequest;
+import com.example.userauth.dto.response.NotificationTemplateResponseDTO;
 import com.example.userauth.model.NotificationTemplate;
 import com.example.userauth.repository.NotificationTemplateRepository;
 import com.google.api.core.ApiFuture;

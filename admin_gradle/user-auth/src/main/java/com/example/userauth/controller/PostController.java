@@ -14,6 +14,13 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/posts")
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "http://211.187.162.65:3000", 
+    "https://211.187.162.65:3000",
+    "http://13.238.171.43:3000",
+    "https://13.238.171.43:3000"
+}, allowCredentials = "true")
 public class PostController {
 
     private final PostService postService;

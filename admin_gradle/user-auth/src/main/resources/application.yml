@@ -28,6 +28,7 @@ logging:
   level:
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.web.cors: DEBUG
     org.springframework.mail: DEBUG
     org.springframework: DEBUG
     com.example: DEBUG
@@ -38,6 +39,15 @@ server:
 
 jwt:
   secret: ***REMOVED-JWT-SECRET***
+
+app:
+  cors:
+    allowed-origins: 
+      - http://localhost:3000
+      - http://211.187.162.65:3000
+      - https://211.187.162.65:3000
+      - http://13.238.171.43:3000
+      - https://13.238.171.43:3000
 
 firebase:
   database:

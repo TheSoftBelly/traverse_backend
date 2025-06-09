@@ -22,6 +22,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import com.example.userauth.security.JwtTokenProvider;
 
 import java.io.IOException;
@@ -51,7 +54,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable()) // CSRF 보호 비활성화 (API 호출 시 필요)
-                .cors(withDefaults()) // withDefaults() 정상 작동
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 명시적 CORS 설정
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS 요청 허용
                         .requestMatchers("/api/auth/register","/api/auth/send-verification-code",
@@ -65,10 +68,14 @@ public class SecurityConfig {
                                 "/api/hashtags","/api/hashtags/{hashtag_id}","/api/hashtags/wordcloud",
                                 "/api/users/statistics", "/api/posts/statistics", "/api/hashtags/{hashtag_id}/status",
                                 "/api/hashtags/statistics","/api/admins/{admin_id}/role", "/api/auth/generate-token",
-                                "/api/auth/admins/","/api/users/statistics","/api/admins/inquiries","/api/chats/rooms/{roomId}").permitAll()
+                                "/api/auth/admins/","/api/users/statistics","/api/admins/inquiries","/api/chats/rooms/{roomId}",
+                                "/api/dashboard/**").permitAll()
                         .anyRequest().authenticated()
                 );
 
+        // CORS 필터를 가장 먼저 추가 (모든 다른 필터보다 앞에)
+        http.addFilterBefore(corsFilter(), org.springframework.security.web.access.channel.ChannelProcessingFilter.class);
+        
         // JwtAuthenticationFilter를 SecurityFilterChain에 추가
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -76,13 +83,49 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() { //  CORS 설정 추가
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://211.187.162.65:3000", "http://localhost:3000")); // 프론트엔드 주소
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS","PATCH"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // 인증 정보 포함 허용
+        
+        // CORS 설정을 더 포용적으로 변경
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://211.187.162.65:3000"); 
+        configuration.addAllowedOrigin("http://211.187.162.65:3000/");
+        
+        configuration.addAllowedMethod("GET");
+        configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
+        configuration.addAllowedMethod("DELETE");
+        configuration.addAllowedMethod("OPTIONS");
+        configuration.addAllowedMethod("PATCH");
+        configuration.addAllowedMethod("HEAD");
+        
+        configuration.addAllowedHeader("*");
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("Content-Type");
+        configuration.addExposedHeader("Accept");
+        configuration.setMaxAge(3600L);
+
+        source.registerCorsConfiguration("/**", configuration);
+        return new CorsFilter(source);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration configuration = new CorsConfiguration();
+        
+        configuration.setAllowCredentials(true);
+        configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("http://211.187.162.65:3000"); 
+        configuration.addAllowedOrigin("http://211.187.162.65:3000/");
+        
+        configuration.addAllowedMethod("*");
+        configuration.addAllowedHeader("*");
+        configuration.addExposedHeader("Authorization");
+        configuration.setMaxAge(3600L);
 
         source.registerCorsConfiguration("/**", configuration);
         return source;
