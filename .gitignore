@@ -147,6 +147,7 @@ coverage/
 google-services.json
 GoogleService-Info.plist
 firebase-config.json
+*firebase-adminsdk*.json
 
 # Kubernetes 및 클라우드 설정
 kubeconfig

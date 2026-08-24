@@ -38,7 +38,7 @@ server:
   port: ${SERVER_PORT:8081}
 
 jwt:
-  secret: ***REMOVED-JWT-SECRET***
+  secret: ${JWT_SECRET}
 
 app:
   cors:
